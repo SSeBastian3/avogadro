@@ -147,3 +147,8 @@ add_subdirectory(swcntbuilder)
 add_subdirectory(qtaim)
 add_subdirectory(quantuminput)
 add_subdirectory(orca)
+
+# We only have UNIX support for yaehmop currently
+if(UNIX)
+  add_subdirectory(yaehmop)
+endif(UNIX)
