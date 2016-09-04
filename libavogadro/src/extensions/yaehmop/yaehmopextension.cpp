@@ -348,7 +348,8 @@ namespace Avogadro
     size_t numKPoints = 0;
     QString specialKPointString;
     YaehmopBandDialog d;
-    if (!d.getKPointInfo(numKPoints, specialKPointString, displayBandData))
+    if (!d.getKPointInfo(m_molecule, numKPoints, specialKPointString,
+                         displayBandData))
       return "";
 
     // Proceed with the function

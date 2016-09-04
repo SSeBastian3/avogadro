@@ -17,6 +17,8 @@
 #ifndef AVOGADRO_YAEHMOPBANDDIALOG_H
 #define AVOGADRO_YAEHMOPBANDDIALOG_H
 
+#include <avogadro/molecule.h>
+
 #include <QDialog>
 
 namespace Avogadro {
@@ -40,13 +42,14 @@ public:
   // Returns true if it was able to parse the given input successfully and
   // if the user did not cancel. The string should already be ready to be
   // added to the yaehmop input.
-  // numKPoints will be set to the number of kpoints, and kPointInfo will
-  // be set to the string if it succeeds. They will be 0 and empty if
-  // the parsing does not succeed.
+  // @param mol is the molecule - used for determining special kpoints.
+  // @param numKPoints will be set to the number of kpoints, and
+  // @param kPointInfo will be set to the string if it succeeds. They will be
+  // 0 and empty if the parsing does not succeed.
   // If the user checks the box to display band data, displayBandData
   // will be set to be true
-  bool getKPointInfo(size_t& numKPoints, QString& kPointInfo,
-                     bool& displayBandData);
+  bool getKPointInfo(Molecule* mol, size_t& numKPoints,
+                     QString& kPointInfo, bool& displayBandData);
 
   void displayInvalidFormatMessage();
 
