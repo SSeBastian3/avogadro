@@ -46,16 +46,52 @@ namespace Avogadro {
 
   public slots:
     void calculateBandStructure() const;
-    void plotTotalDOS() const;
+    void calculateTotalDOS() const;
     void plotPartialDOS() const;
     void setParametersFile();
     void executeCustomInput() const;
 
   private:
     // @param displayBandData This will be set to true if we are to
-    // display the band data for the user.
+    //                        display the band data for the user.
+    // @return The band calculation input.
     QString createYaehmopBandInput(bool& displayBandData) const;
+
+    // @param displayDOSData This will be set to true if we are to
+    //                       display the DOS data for the user.
+    // @param useSmoothing This will be set to true if we are to
+    //                     use Gaussian smoothing on the data.
+    // @param stepE If useSmoothing is true, this will contain
+    //              the energy step size to be used for Gaussian smoothing.
+    // @param broadening If useSmoothing is true, this will contain
+    //                   the broadening to be used for Gaussian smoothing.
+    // @return The total DOS calculation input.
+    QString createYaehmopTotalDOSInput(bool& displayDOSData,
+                                       bool& useSmoothing,
+                                       double& stepE,
+                                       double& broadening) const;
+
     QString createGeometryAndLatticeInput() const;
+
+    // Assuming a constant x difference, integrate the data using the
+    // trapezoid rule and return it as a QList.
+    // Each point adds the last point to it. The final value
+    // in the QList is the total integration.
+    // @param xDiff The distance between x values.
+    // @param y The y value data.
+    // @return The integration data.
+    static QList<double> integrateDataTrapezoidal(double xDist,
+                                                  const QVector<double>& y);
+
+    // Smooths data using Gaussian smoothing.
+    // @param densities The x values to be smoothed
+    // @param energies The y values to be smoothed
+    // @param stepE The new distance between energy points
+    // @param broadening The broadening for the smoothing
+    static void smoothData(QVector<double>& densities,
+                           QVector<double>& energies,
+                           double stepE, double broadening);
+
 
     QList<QAction *> m_actions;
     Molecule *m_molecule;

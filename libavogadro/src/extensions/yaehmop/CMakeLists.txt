@@ -7,11 +7,13 @@ set(PLUGIN_TARGET extensions)
 set(yaehmopextension_SRCS
   yaehmopbanddialog.cpp
   yaehmopextension.cpp
+  yaehmoptotaldosdialog.cpp
   yaehmopout.cpp
 )
 
 set(yaehmopextension_UIS
   yaehmopbanddialog.ui
+  yaehmoptotaldosdialog.ui
 )
 
 avogadro_plugin_nogl(yaehmopextension
