@@ -5,6 +5,7 @@ set(PLUGIN_LABEL extensions)
 set(PLUGIN_TARGET extensions)
 
 set(yaehmopextension_SRCS
+  specialkpoints.cpp
   yaehmopbanddialog.cpp
   yaehmopextension.cpp
   yaehmoptotaldosdialog.cpp

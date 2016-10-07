@@ -92,7 +92,6 @@ namespace Avogadro {
                            QVector<double>& energies,
                            double stepE, double broadening);
 
-
     QList<QAction *> m_actions;
     Molecule *m_molecule;
     QString m_parametersFile;

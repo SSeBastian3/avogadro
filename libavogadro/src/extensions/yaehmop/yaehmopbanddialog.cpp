@@ -14,6 +14,7 @@
 
 ******************************************************************************/
 
+#include "specialkpoints.h"
 #include "yaehmopbanddialog.h"
 #include "ui_yaehmopbanddialog.h"
 
@@ -35,11 +36,15 @@ namespace Avogadro {
     delete m_ui;
   }
 
-  bool YaehmopBandDialog::getKPointInfo(size_t& numKPoints, QString& kPointInfo,
+  bool YaehmopBandDialog::getKPointInfo(Molecule* mol, size_t& numKPoints,
+                                        QString& kPointInfo,
                                         bool& displayBandData)
   {
     numKPoints = 0;
     kPointInfo = "";
+    QString specialKPoints = SpecialKPoints::getSpecialKPoints(mol);
+    if (!specialKPoints.isEmpty())
+      m_ui->edit_specialKPoints->setText(specialKPoints);
 
     if (this->exec() == QDialog::Rejected)
       return false;
