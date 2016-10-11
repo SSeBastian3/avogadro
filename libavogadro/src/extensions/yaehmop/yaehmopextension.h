@@ -54,8 +54,12 @@ namespace Avogadro {
   private:
     // @param displayBandData This will be set to true if we are to
     //                        display the band data for the user.
+    // @param limitY Should we limit the y range?
+    // @param minY MinY if we are limiting the y range.
+    // @param maxY MaxY if we are limiting the y range.
     // @return The band calculation input.
-    QString createYaehmopBandInput(bool& displayBandData) const;
+    QString createYaehmopBandInput(bool& displayBandData, bool& limitY,
+                                   double& minY, double& maxY) const;
 
     // @param displayDOSData This will be set to true if we are to
     //                       display the DOS data for the user.

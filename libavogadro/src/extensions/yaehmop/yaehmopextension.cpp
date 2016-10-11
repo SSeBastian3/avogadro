@@ -26,6 +26,7 @@
 #include <openbabel/mol.h>
 
 #include <QAction>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -122,7 +123,10 @@ namespace Avogadro
   {
     // This boolean will be set to true if we are to display band data
     bool displayBandData = false;
-    QString input = createYaehmopBandInput(displayBandData);
+    bool limitY = false;
+    double fixedMinY, fixedMaxY;
+    QString input = createYaehmopBandInput(displayBandData, limitY,
+                                           fixedMinY, fixedMaxY);
     // If the input is empty, either the user cancelled
     // or an error box has already popped up...
     if (input.isEmpty())
@@ -242,7 +246,12 @@ namespace Avogadro
     // Let's make our widget a reasonable size
     pw->resize(500, 500);
 
-    // setting our limits for the plot
+    // Set our limits for the plot
+    // If we are limiting y, then change min_y and max_y
+    if (limitY) {
+      min_y = fixedMinY;
+      max_y = fixedMaxY;
+    }
     pw->setDefaultLimits(min_x, max_x, min_y, max_y);
 
     // Set up our axes
@@ -545,7 +554,9 @@ namespace Avogadro
 
   }
 
-  QString YaehmopExtension::createYaehmopBandInput(bool& displayBandData) const
+  QString YaehmopExtension::createYaehmopBandInput(bool& displayBandData,
+                                                   bool& limitY, double& minY,
+                                                   double& maxY) const
   {
     if (!m_molecule) {
       qDebug() << "Error in " << __FUNCTION__ << ": the molecule is not set";
@@ -567,7 +578,7 @@ namespace Avogadro
     QString specialKPointString;
     YaehmopBandDialog d;
     if (!d.getKPointInfo(m_molecule, numKPoints, specialKPointString,
-                         displayBandData))
+                         displayBandData, limitY, minY, maxY))
       return "";
 
     // Proceed with the function
@@ -716,9 +727,13 @@ namespace Avogadro
 #ifdef __APPLE__
     // For apple, find yaehmop relative to the application directory
     QString program = QCoreApplication::applicationDirPath() + "/../bin/yaehmop";
-#else
-    // Otherwise, we assume yaehmop is in the same directory as avogadro
+#elif defined _WIN32
+    // For Windows, assume yaehmop is in the same directory as avogadro
     QString program = "yaehmop";
+#else
+    // For Linux, assume yaehmop is int he same directory as well.
+    // The following format is needed for packages
+    QString program = QCoreApplication::applicationDirPath() + "/yaehmop";
 #endif
 
     QStringList arguments;

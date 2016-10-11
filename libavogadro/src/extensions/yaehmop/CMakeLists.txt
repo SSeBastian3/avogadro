@@ -39,7 +39,7 @@ if(NOT EXISTS ${CMAKE_BINARY_DIR}/bin/${YAEHMOP_NAME})
   # Apple
   elseif(APPLE)
     set(YAEHMOP_DOWNLOAD_LOCATION "https://github.com/psavery/yaehmop/releases/download/3.0/mac64-yaehmop.tgz")
-    set(MD5 "df37ca47554fb5c068eeac59dc5f8797")
+    set(MD5 "7b2af1fb71a1c47104ea257025f9db9f")
 
   # Windows
   elseif(WIN32 AND NOT CYGWIN)

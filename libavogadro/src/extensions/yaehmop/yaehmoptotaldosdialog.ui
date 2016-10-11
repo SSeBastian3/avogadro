@@ -14,19 +14,6 @@
    <string>Yaehmop Total DOS</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="7" column="1">
-    <widget class="QCheckBox" name="cb_useSmoothing">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to use Gaussian smoothing to smooth the data.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Smoothing is typically performed for density of states data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="text">
-      <string>Use Gaussian Smoothing?</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="layoutDirection">
@@ -44,16 +31,6 @@
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>k points</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -89,25 +66,27 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
-    <widget class="QDoubleSpinBox" name="spin_broadening">
+   <item row="5" column="0" colspan="2">
+    <widget class="QTextEdit" name="edit_kpoints">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gaussian broadening for Gaussian smoothing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the k-points for the calculation in a grid format as follows:&lt;/p&gt;&lt;p&gt;&amp;lt;l&amp;gt;x&amp;lt;m&amp;gt;x&amp;lt;n&amp;gt;&lt;/p&gt;&lt;p&gt;where l, m, and n are integers. For example, 5x5x5 would be a grid with 5 elements in every direction. You may also enter k-points in the following format:&lt;/p&gt;&lt;p&gt;&amp;lt;x&amp;gt; &amp;lt;y&amp;gt; &amp;lt;z&amp;gt; &amp;lt;weight&amp;gt;&lt;/p&gt;&lt;p&gt;where x, y, and z are the three dimensional coordinates of the k-point in reciprocal space, and the weight is the weight of the k-point. &lt;/p&gt;&lt;p&gt;More k-points will result in a more accurate calculation.&lt;/p&gt;&lt;p&gt;Please note that the orientation of your cell may have an effect on the locations of these reciprocal space points.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5x5x5&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
-     <property name="decimals">
-      <number>8</number>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QCheckBox" name="cb_displayData">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to display the density of states data in a&lt;/p&gt;&lt;p&gt;pop-up box after the calculation finishes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Data may be copied and pasted into a separate file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
-     <property name="maximum">
-      <double>100000.000000000000000</double>
-     </property>
-     <property name="singleStep">
-      <double>0.100000000000000</double>
-     </property>
-     <property name="value">
-      <double>1.000000000000000</double>
+     <property name="text">
+      <string>Display DOS data?</string>
      </property>
     </widget>
    </item>
@@ -118,6 +97,19 @@
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QCheckBox" name="cb_useSmoothing">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to use Gaussian smoothing to smooth the data.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Smoothing is typically performed for density of states data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Use Gaussian Smoothing?</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -146,27 +138,35 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="QTextEdit" name="edit_kpoints">
+   <item row="10" column="1">
+    <widget class="QDoubleSpinBox" name="spin_broadening">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the k-points for the calculation in a grid format as follows:&lt;/p&gt;&lt;p&gt;&amp;lt;l&amp;gt;x&amp;lt;m&amp;gt;x&amp;lt;n&amp;gt;&lt;/p&gt;&lt;p&gt;where l, m, and n are integers. For example, 5x5x5 would be a grid with 5 elements in every direction. You may also enter k-points in the following format:&lt;/p&gt;&lt;p&gt;&amp;lt;x&amp;gt; &amp;lt;y&amp;gt; &amp;lt;z&amp;gt; &amp;lt;weight&amp;gt;&lt;/p&gt;&lt;p&gt;where x, y, and z are the three dimensional coordinates of the k-point in reciprocal space, and the weight is the weight of the k-point. &lt;/p&gt;&lt;p&gt;More k-points will result in a more accurate calculation.&lt;/p&gt;&lt;p&gt;Please note that the orientation of your cell may have an effect on the locations of these reciprocal space points.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gaussian broadening for Gaussian smoothing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
-     <property name="html">
-      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5x5x5&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="decimals">
+      <number>8</number>
+     </property>
+     <property name="maximum">
+      <double>100000.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="value">
+      <double>1.000000000000000</double>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
-    <widget class="QCheckBox" name="cb_displayData">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to display the density of states data in a&lt;/p&gt;&lt;p&gt;pop-up box after the calculation finishes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Data may be copied and pasted into a separate file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   <item row="13" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="text">
-      <string>Display DOS data?</string>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>

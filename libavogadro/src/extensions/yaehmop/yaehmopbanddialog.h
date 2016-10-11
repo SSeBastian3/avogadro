@@ -45,11 +45,15 @@ public:
   // @param mol is the molecule - used for determining special kpoints.
   // @param numKPoints will be set to the number of kpoints, and
   // @param kPointInfo will be set to the string if it succeeds. They will be
-  // 0 and empty if the parsing does not succeed.
+  //                   0 and empty if the parsing does not succeed.
+  // @param limitY Should we limit the y-range?
+  // @param minY MinY if we are limiting the y-range.
+  // @param maxY MaxY if we are limiting the y-range.
   // If the user checks the box to display band data, displayBandData
   // will be set to be true
   bool getKPointInfo(Molecule* mol, size_t& numKPoints,
-                     QString& kPointInfo, bool& displayBandData);
+                     QString& kPointInfo, bool& displayBandData,
+                     bool& limitY, double& minY, double& maxY);
 
   void displayInvalidFormatMessage();
 

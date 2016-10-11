@@ -31,7 +31,7 @@ namespace Avogadro {
       // Check to see if the space group is set.
       OpenBabel::OBUnitCell* cell = mol->OBUnitCell();
       if (cell) {
-        OpenBabel::SpaceGroup* spg = cell->GetSpaceGroup();
+        OpenBabel::SpaceGroup* spg = const_cast<OpenBabel::SpaceGroup*>(cell->GetSpaceGroup());
         if (spg) {
           unsigned int spgNum = spg->GetId();
           if (spgNum <= 230) {
@@ -58,7 +58,7 @@ namespace Avogadro {
       // Check to see if the space group is set.
       cell = mol->OBUnitCell();
       if (cell) {
-        spg = cell->GetSpaceGroup();
+        spg = const_cast<OpenBabel::SpaceGroup*>(cell->GetSpaceGroup());
         if (spg)
           spgNum = spg->GetId();
       }

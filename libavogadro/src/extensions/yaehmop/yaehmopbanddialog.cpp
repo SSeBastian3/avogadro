@@ -38,7 +38,8 @@ namespace Avogadro {
 
   bool YaehmopBandDialog::getKPointInfo(Molecule* mol, size_t& numKPoints,
                                         QString& kPointInfo,
-                                        bool& displayBandData)
+                                        bool& displayBandData, bool& limitY,
+                                        double& minY, double& maxY)
   {
     numKPoints = 0;
     kPointInfo = "";
@@ -84,6 +85,9 @@ namespace Avogadro {
     numKPoints = numKPointsVal;
     kPointInfo = text;
     displayBandData = m_ui->cb_displayBandData->isChecked();
+    limitY = m_ui->cb_limitY->isChecked();
+    minY = m_ui->spin_minY->value();
+    maxY = m_ui->spin_maxY->value();
     return true;
   }
 
