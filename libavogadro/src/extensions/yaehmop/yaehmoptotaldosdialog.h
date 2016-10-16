@@ -54,13 +54,17 @@ public:
   //              the energy step size to be used for Gaussian smoothing.
   // @param broadening If useSmoothing is true, this will contain
   //                   the broadening to be used for Gaussian smoothing.
+  // @param limitY Should we limit the y-range?
+  // @param minY MinY if we are limiting the y-range.
+  // @param maxY MaxY if we are limiting the y-range.
   // @return True if the parse was successful and the user did not cancel.
   //         False otherwise.
 
   bool getNumValAndKPoints(size_t& numValElectrons, size_t& numKPoints,
                            QString& kPoints, bool& displayDOSData,
                            bool& useSmoothing, double& stepE,
-                           double& broadening);
+                           double& broadening, bool& limitY,
+                           double& minY, double& maxY);
 
   void displayInvalidFormatMessage();
 

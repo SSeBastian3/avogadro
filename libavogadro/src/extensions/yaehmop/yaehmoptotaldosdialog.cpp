@@ -15,6 +15,7 @@
 ******************************************************************************/
 
 #include "yaehmoptotaldosdialog.h"
+#include "yaehmopextension.h"
 #include "ui_yaehmoptotaldosdialog.h"
 
 #include <QDebug>
@@ -41,12 +42,20 @@ namespace Avogadro {
                                                   bool& displayDOSData,
                                                   bool& useSmoothing,
                                                   double& stepE,
-                                                  double& broadening)
+                                                  double& broadening,
+                                                  bool& limitY,
+                                                  double& minY, double& maxY)
   {
-    numKPoints = 0;
-    kPoints = "";
-
     m_ui->spin_numValElectrons->setValue(numValElectrons);
+    numKPoints = 0;
+    m_ui->edit_kpoints->setText(kPoints);
+    m_ui->cb_displayData->setChecked(displayDOSData);
+    m_ui->cb_useSmoothing->setChecked(useSmoothing);
+    m_ui->spin_energyStep->setValue(stepE);
+    m_ui->spin_broadening->setValue(broadening);
+    m_ui->cb_limitY->setChecked(limitY);
+    m_ui->spin_minY->setValue(minY);
+    m_ui->spin_maxY->setValue(maxY);
 
     if (this->exec() == QDialog::Rejected)
       return false;
@@ -161,6 +170,13 @@ namespace Avogadro {
       stepE = 0.0;
       broadening = 0.0;
     }
+    limitY = m_ui->cb_limitY->isChecked();
+    minY = m_ui->spin_minY->value();
+    maxY = m_ui->spin_maxY->value();
+
+    // We have to set this in here so we can keep the "text"
+    YaehmopExtension::setDOSKPoints(text);
+
     return true;
   }
 

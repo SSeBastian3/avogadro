@@ -41,7 +41,12 @@ namespace Avogadro {
                                         bool& displayBandData, bool& limitY,
                                         double& minY, double& maxY)
   {
-    numKPoints = 0;
+    m_ui->spin_numKPoints->setValue(numKPoints);
+    m_ui->cb_displayBandData->setChecked(displayBandData);
+    m_ui->cb_limitY->setChecked(limitY);
+    m_ui->spin_minY->setValue(minY);
+    m_ui->spin_maxY->setValue(maxY);
+
     kPointInfo = "";
     QString specialKPoints = SpecialKPoints::getSpecialKPoints(mol);
     if (!specialKPoints.isEmpty())

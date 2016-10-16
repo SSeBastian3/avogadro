@@ -52,6 +52,18 @@ using namespace Eigen;
 namespace Avogadro
 {
 
+  // Initialize our temporary saves
+  size_t YaehmopExtension::s_bandNumKPoints = 40;
+  QString YaehmopExtension::s_dosKPoints = "15x15x15";
+  bool YaehmopExtension::s_useBroadening = true;
+  double YaehmopExtension::s_energyStepSize = 0.1;
+  double YaehmopExtension::s_broadening = 1.0;
+  bool YaehmopExtension::s_displayData = false;
+  bool YaehmopExtension::s_limitY = false;
+  double YaehmopExtension::s_minY = 0.0;
+  double YaehmopExtension::s_maxY = 0.0;
+  QMutex YaehmopExtension::s_mutex;
+
   YaehmopExtension::YaehmopExtension(QObject *parent) : Extension(parent)
   {
     // create an action for our first action
@@ -122,9 +134,10 @@ namespace Avogadro
   void YaehmopExtension::calculateBandStructure() const
   {
     // This boolean will be set to true if we are to display band data
-    bool displayBandData = false;
-    bool limitY = false;
-    double fixedMinY, fixedMaxY;
+    bool displayBandData = getDisplayData();
+    bool limitY = getLimitY();
+    double fixedMinY = getMinY();
+    double fixedMaxY = getMaxY();;
     QString input = createYaehmopBandInput(displayBandData, limitY,
                                            fixedMinY, fixedMaxY);
     // If the input is empty, either the user cancelled
@@ -331,10 +344,16 @@ namespace Avogadro
 
   void YaehmopExtension::calculateTotalDOS() const
   {
-    bool displayDOSData = false, useSmoothing = false;
-    double stepE = 0.0, broadening = 0.0;
+    bool displayDOSData = getDisplayData();
+    bool useSmoothing = getUseBroadening();
+    double stepE = getEnergyStepSize();
+    double broadening = getBroadening();
+    bool limitY = getLimitY();
+    double fixedMinY = getMinY();
+    double fixedMaxY = getMaxY();
     QString input = createYaehmopTotalDOSInput(displayDOSData, useSmoothing,
-                                               stepE, broadening);
+                                               stepE, broadening, limitY,
+                                               fixedMinY, fixedMaxY);
     // If the input is empty, either the user cancelled
     // or an error box has already popped up...
     if (input.isEmpty())
@@ -425,7 +444,12 @@ namespace Avogadro
     // Let's make our widget a reasonable size
     pw->resize(500, 500);
 
-    // setting our limits for the plot
+    // Set our limits for the plot
+    // If we are limiting y, then change min_y and max_y
+    if (limitY) {
+      min_y = fixedMinY;
+      max_y = fixedMaxY;
+    }
     pw->setDefaultLimits(min_x, max_x, min_y, max_y);
 
     // Set up our axes
@@ -574,12 +598,19 @@ namespace Avogadro
 
     // Let's get the k-point info from the user first so we don't have to run
     // through the rest of the algorithm if they cancel...
-    size_t numKPoints = 0;
+    size_t numKPoints = getBandNumKPoints();
     QString specialKPointString;
     YaehmopBandDialog d;
     if (!d.getKPointInfo(m_molecule, numKPoints, specialKPointString,
                          displayBandData, limitY, minY, maxY))
       return "";
+
+    // Let's save the settings for future calcs in the same program run.
+    setBandNumKPoints(numKPoints);
+    setDisplayData(displayBandData);
+    setLimitY(limitY);
+    setMinY(minY);
+    setMaxY(maxY);
 
     // Proceed with the function
     QString input;
@@ -610,7 +641,10 @@ namespace Avogadro
                                                   bool& displayDOSData,
                                                   bool& useSmoothing,
                                                   double& stepE,
-                                                  double& broadening) const
+                                                  double& broadening,
+                                                  bool& limitY,
+                                                  double& minY,
+                                                  double& maxY) const
   {
     if (!m_molecule) {
       qDebug() << "Error in " << __FUNCTION__ << ": the molecule is not set";
@@ -634,13 +668,24 @@ namespace Avogadro
       atomicNums.push_back(atoms[i]->atomicNumber());
     size_t numValElectrons = numValenceElectrons(atomicNums);
     size_t numKPoints = 0;
-    QString kPointString;
+    QString kPointString = getDOSKPoints();
     YaehmopTotalDOSDialog d;
     if (!d.getNumValAndKPoints(numValElectrons, numKPoints, kPointString,
                                displayDOSData, useSmoothing, stepE,
-                               broadening)) {
+                               broadening, limitY, minY, maxY)) {
       return "";
     }
+
+    // Set up process saves
+    // DOSKPoints is performed in the dialog. Skip that one.
+    //setDOSKPoints(kPointString);
+    setDisplayData(displayDOSData);
+    setUseBroadening(useSmoothing);
+    setEnergyStepSize(stepE);
+    setBroadening(broadening);
+    setLimitY(limitY);
+    setMinY(minY);
+    setMaxY(maxY);
 
     // Proceed with the function
     QString input;
