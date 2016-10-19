@@ -490,7 +490,7 @@ namespace Avogadro
       }
       pw->addPlotObject(tempPo);
       // Now let's add a label for it and use secondary axes
-      pw->setSecondaryLimits(0, round(maxVal), min_y, max_y);
+      pw->setSecondaryLimits(0, qRound(maxVal), min_y, max_y);
       pw->axis(PlotWidget::TopAxis)->setLabel(tr("Integration (# electrons)"));
       pw->axis(PlotWidget::TopAxis)->setVisible(true);
       pw->axis(PlotWidget::TopAxis)->setTickLabelsShown(true);
@@ -944,8 +944,10 @@ namespace Avogadro
       if (i == 0)
         continue;
 
-      // Start with the last number
-      double integ = integration.last();
+      // Start with the last number if possible
+      double integ = 0.0;
+      if (integration.size() != 0)
+        integ = integration.last();
       integ += xDist * (y[i] + y[i - 1]);
       integration.append(integ);
     }
