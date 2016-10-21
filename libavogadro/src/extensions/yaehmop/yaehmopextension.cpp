@@ -52,19 +52,20 @@ using namespace Eigen;
 namespace Avogadro
 {
 
-  // Initialize our temporary saves
-  size_t YaehmopExtension::s_bandNumKPoints = 40;
-  QString YaehmopExtension::s_dosKPoints = "15x15x15";
-  bool YaehmopExtension::s_useBroadening = true;
-  double YaehmopExtension::s_energyStepSize = 0.1;
-  double YaehmopExtension::s_broadening = 1.0;
-  bool YaehmopExtension::s_displayData = false;
-  bool YaehmopExtension::s_limitY = false;
-  double YaehmopExtension::s_minY = 0.0;
-  double YaehmopExtension::s_maxY = 0.0;
-  QMutex YaehmopExtension::s_mutex;
-
-  YaehmopExtension::YaehmopExtension(QObject *parent) : Extension(parent)
+  YaehmopExtension::YaehmopExtension(QObject *parent)
+    : Extension(parent),
+      m_bandNumKPoints(40),
+      m_dosKPoints("15x15x15"),
+      m_useSmoothing(true),
+      m_eStep(0.1),
+      m_broadening(1.0),
+      m_displayData(false),
+      m_limitY(false),
+      m_minY(0.0),
+      m_maxY(0.0),
+      m_plotFermi(false),
+      m_fermi(0.0),
+      m_zeroFermi(false)
   {
     // create an action for our first action
     QAction *action = new QAction( this );
@@ -133,13 +134,7 @@ namespace Avogadro
 
   void YaehmopExtension::calculateBandStructure() const
   {
-    // This boolean will be set to true if we are to display band data
-    bool displayBandData = getDisplayData();
-    bool limitY = getLimitY();
-    double fixedMinY = getMinY();
-    double fixedMaxY = getMaxY();;
-    QString input = createYaehmopBandInput(displayBandData, limitY,
-                                           fixedMinY, fixedMaxY);
+    QString input = createYaehmopBandInput();
     // If the input is empty, either the user cancelled
     // or an error box has already popped up...
     if (input.isEmpty())
@@ -218,7 +213,7 @@ namespace Avogadro
 
         // x is k-point distance so far. y is energy
         double x = distanceSoFar;
-        double y = bands[i][j];
+        double y = (m_zeroFermi ? bands[i][j] - m_fermi : bands[i][j]);
         energies.append(QPointF(x, y));
 
         // Correct the min_y and max_y values
@@ -261,9 +256,9 @@ namespace Avogadro
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
-    if (limitY) {
-      min_y = fixedMinY;
-      max_y = fixedMaxY;
+    if (m_limitY) {
+      min_y = m_minY;
+      max_y = m_maxY;
     }
     pw->setDefaultLimits(min_x, max_x, min_y, max_y);
 
@@ -286,8 +281,23 @@ namespace Avogadro
       pw->addPlotObject(po);
     }
 
+    // If we have the fermi energy, plot that as a dashed line
+    if (m_plotFermi) {
+      size_t num = 75;
+      for (size_t i = 0; i < num; i += 2) {
+        PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
+        tempPo->addPoint(QPointF(static_cast<double>(i) /
+                                 static_cast<double>(num) *
+                                 static_cast<double>(max_x), m_fermi));
+        tempPo->addPoint(QPointF(static_cast<double>(i + 1) /
+                                 static_cast<double>(num) *
+                                 static_cast<double>(max_x), m_fermi));
+        pw->addPlotObject(tempPo);
+      }
+    }
+
     // If we are to display band data, show that first
-    if (displayBandData) {
+    if (m_displayData) {
       QString bandDataStr;
 
       // Add in special k point info first
@@ -344,16 +354,7 @@ namespace Avogadro
 
   void YaehmopExtension::calculateTotalDOS() const
   {
-    bool displayDOSData = getDisplayData();
-    bool useSmoothing = getUseBroadening();
-    double stepE = getEnergyStepSize();
-    double broadening = getBroadening();
-    bool limitY = getLimitY();
-    double fixedMinY = getMinY();
-    double fixedMaxY = getMaxY();
-    QString input = createYaehmopTotalDOSInput(displayDOSData, useSmoothing,
-                                               stepE, broadening, limitY,
-                                               fixedMinY, fixedMaxY);
+    QString input = createYaehmopTotalDOSInput();
     // If the input is empty, either the user cancelled
     // or an error box has already popped up...
     if (input.isEmpty())
@@ -372,11 +373,14 @@ namespace Avogadro
 
     // First, let's get the fermi energy
     bool fermiFound = true;
-    double fermi = 0.0;
-    if (!YaehmopOut::getFermiLevelFromDOSData(output, fermi)) {
+    double unadjustedFermi, fermi = 0.0;
+    if (!YaehmopOut::getFermiLevelFromDOSData(output, unadjustedFermi)) {
       qDebug() << "Fermi level could not be obtained in " << __FUNCTION__;
       fermiFound = false;
     }
+
+    if (!m_zeroFermi)
+      fermi = unadjustedFermi;
 
     // Trim the output so it only contains the total DOS
     // Remove everything before TOTAL DENSITY OF STATES
@@ -410,12 +414,18 @@ namespace Avogadro
       return;
     }
 
+    // If we need to zero the Fermi energy, go ahead and do that
+    if (fermiFound && m_zeroFermi) {
+      for (size_t i = 0; i < energies.size(); ++i)
+        energies[i] -= unadjustedFermi;
+    }
+
     // If we smooth data, this will be calculated
     QList<double> integration;
 
     // Let's smooth the data if we need to
-    if (useSmoothing) {
-      smoothData(densities, energies, stepE, broadening);
+    if (m_useSmoothing) {
+      smoothData(densities, energies, m_eStep, m_broadening);
 
       // Let's get the integration data as well
       // This assumes uniform spacing between the energy levels
@@ -446,9 +456,9 @@ namespace Avogadro
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
-    if (limitY) {
-      min_y = fixedMinY;
-      max_y = fixedMaxY;
+    if (m_limitY) {
+      min_y = m_minY;
+      max_y = m_maxY;
     }
     pw->setDefaultLimits(min_x, max_x, min_y, max_y);
 
@@ -501,13 +511,13 @@ namespace Avogadro
     pw->setAttribute(Qt::WA_DeleteOnClose);
 
     // If we are to display band data, show that first
-    if (displayDOSData) {
+    if (m_displayData) {
       QString DOSDataStr;
 
       // Let's print the fermi energy first
       if (fermiFound)
-        DOSDataStr += QString("# Fermi level: ") + QString::number(fermi) +
-                      "\n";
+        DOSDataStr += QString("# Unadjusted Fermi level: ") +
+                      QString::number(unadjustedFermi) + "\n";
       else
         DOSDataStr += "# Fermi level not found!\n";
 
@@ -578,9 +588,7 @@ namespace Avogadro
 
   }
 
-  QString YaehmopExtension::createYaehmopBandInput(bool& displayBandData,
-                                                   bool& limitY, double& minY,
-                                                   double& maxY) const
+  QString YaehmopExtension::createYaehmopBandInput()
   {
     if (!m_molecule) {
       qDebug() << "Error in " << __FUNCTION__ << ": the molecule is not set";
@@ -598,19 +606,12 @@ namespace Avogadro
 
     // Let's get the k-point info from the user first so we don't have to run
     // through the rest of the algorithm if they cancel...
-    size_t numKPoints = getBandNumKPoints();
     QString specialKPointString;
     YaehmopBandDialog d;
-    if (!d.getKPointInfo(m_molecule, numKPoints, specialKPointString,
-                         displayBandData, limitY, minY, maxY))
+    if (!d.getKPointInfo(m_molecule, m_bandNumKPoints, specialKPointString,
+                         m_displayData, m_limitY, m_minY, m_maxY, m_plotFermi,
+                         m_fermi, m_zeroFermi))
       return "";
-
-    // Let's save the settings for future calcs in the same program run.
-    setBandNumKPoints(numKPoints);
-    setDisplayData(displayBandData);
-    setLimitY(limitY);
-    setMinY(minY);
-    setMaxY(maxY);
 
     // Proceed with the function
     QString input;
@@ -623,7 +624,7 @@ namespace Avogadro
     input += "Band\n";
 
     // This is the number of kpoints connecting each special k point
-    input += (QString::number(numKPoints) + "\n");
+    input += (QString::number(m_bandNumKPoints) + "\n");
     // Num special k points
     size_t numSK = specialKPointString.split(QRegExp("[\r\n]"),
                                              QString::SkipEmptyParts).size();
@@ -637,14 +638,7 @@ namespace Avogadro
     return input;
   }
 
-  QString YaehmopExtension::createYaehmopTotalDOSInput(
-                                                  bool& displayDOSData,
-                                                  bool& useSmoothing,
-                                                  double& stepE,
-                                                  double& broadening,
-                                                  bool& limitY,
-                                                  double& minY,
-                                                  double& maxY) const
+  QString YaehmopExtension::createYaehmopTotalDOSInput()
   {
     if (!m_molecule) {
       qDebug() << "Error in " << __FUNCTION__ << ": the molecule is not set";
@@ -668,24 +662,14 @@ namespace Avogadro
       atomicNums.push_back(atoms[i]->atomicNumber());
     size_t numValElectrons = numValenceElectrons(atomicNums);
     size_t numKPoints = 0;
-    QString kPointString = getDOSKPoints();
+    QString tempDOSKPoints = m_dosKPoints;
     YaehmopTotalDOSDialog d;
-    if (!d.getNumValAndKPoints(numValElectrons, numKPoints, kPointString,
-                               displayDOSData, useSmoothing, stepE,
-                               broadening, limitY, minY, maxY)) {
+    if (!d.getNumValAndKPoints(this, numValElectrons, numKPoints,
+                               tempDOSKPoints, m_displayData, m_useSmoothing,
+                               m_eStep, m_broadening, m_limitY,
+                               m_minY, m_maxY, m_zeroFermi)) {
       return "";
     }
-
-    // Set up process saves
-    // DOSKPoints is performed in the dialog. Skip that one.
-    //setDOSKPoints(kPointString);
-    setDisplayData(displayDOSData);
-    setUseBroadening(useSmoothing);
-    setEnergyStepSize(stepE);
-    setBroadening(broadening);
-    setLimitY(limitY);
-    setMinY(minY);
-    setMaxY(maxY);
 
     // Proceed with the function
     QString input;
@@ -708,7 +692,7 @@ namespace Avogadro
     // k points!
     input += "k points\n";
     input += (QString::number(numKPoints) + "\n");
-    input += kPointString;
+    input += tempDOSKPoints;
 
     // We're done!
     return input;

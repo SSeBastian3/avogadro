@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>570</width>
-    <height>307</height>
+    <height>368</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -130,7 +130,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="7" column="0" colspan="2">
+   <item row="9" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -140,8 +140,67 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
+   <item row="7" column="0">
+    <widget class="QCheckBox" name="cb_plotFermi">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Fermi level should be known before checking this box. You can discover the Fermi level by performing a density of states calculation and displaying the data (it will be at the top of the data).&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If this box is checked, be sure to set the correct Fermi level in the spinbox on the right.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Plot Fermi?</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QDoubleSpinBox" name="spin_fermi">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Fermi Level&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="decimals">
+      <number>5</number>
+     </property>
+     <property name="minimum">
+      <double>-10000.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>10000.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QCheckBox" name="cb_zeroFermi">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Zero Fermi?</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>spin_numKPoints</tabstop>
+  <tabstop>edit_specialKPoints</tabstop>
+  <tabstop>cb_displayBandData</tabstop>
+  <tabstop>cb_limitY</tabstop>
+  <tabstop>spin_minY</tabstop>
+  <tabstop>spin_maxY</tabstop>
+  <tabstop>cb_plotFermi</tabstop>
+  <tabstop>spin_fermi</tabstop>
+  <tabstop>cb_zeroFermi</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -205,6 +264,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>449</x>
      <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_plotFermi</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spin_fermi</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>170</x>
+     <y>250</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>251</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_plotFermi</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cb_zeroFermi</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>170</x>
+     <y>225</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>170</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>

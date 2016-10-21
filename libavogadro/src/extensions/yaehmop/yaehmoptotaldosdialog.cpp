@@ -36,7 +36,8 @@ namespace Avogadro {
     delete m_ui;
   }
 
-  bool YaehmopTotalDOSDialog::getNumValAndKPoints(size_t& numValElectrons,
+  bool YaehmopTotalDOSDialog::getNumValAndKPoints(YaehmopExtension* yext,
+                                                  size_t& numValElectrons,
                                                   size_t& numKPoints,
                                                   QString& kPoints,
                                                   bool& displayDOSData,
@@ -44,7 +45,8 @@ namespace Avogadro {
                                                   double& stepE,
                                                   double& broadening,
                                                   bool& limitY,
-                                                  double& minY, double& maxY)
+                                                  double& minY, double& maxY,
+                                                  bool& zeroFermi)
   {
     m_ui->spin_numValElectrons->setValue(numValElectrons);
     numKPoints = 0;
@@ -56,6 +58,7 @@ namespace Avogadro {
     m_ui->cb_limitY->setChecked(limitY);
     m_ui->spin_minY->setValue(minY);
     m_ui->spin_maxY->setValue(maxY);
+    m_ui->cb_zeroFermi->setChecked(zeroFermi);
 
     if (this->exec() == QDialog::Rejected)
       return false;
@@ -173,9 +176,10 @@ namespace Avogadro {
     limitY = m_ui->cb_limitY->isChecked();
     minY = m_ui->spin_minY->value();
     maxY = m_ui->spin_maxY->value();
+    zeroFermi = m_ui->cb_zeroFermi->isChecked();
 
     // We have to set this in here so we can keep the "text"
-    YaehmopExtension::setDOSKPoints(text);
+    yext->setDOSKPoints(text);
 
     return true;
   }

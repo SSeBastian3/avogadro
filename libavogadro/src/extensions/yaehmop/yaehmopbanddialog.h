@@ -49,11 +49,19 @@ public:
   // @param limitY Should we limit the y-range?
   // @param minY MinY if we are limiting the y-range.
   // @param maxY MaxY if we are limiting the y-range.
+  // @param plotFermi Whether or not to plot the Fermi level. It must be known
+  //                  from a density of states calculation.
+  // @param fermi The Fermi level. The user should know this from a density
+  //              of states calculation. This only takes effect if plotFermi is
+  //              true.
+  // @param zeroFermi Whether or not to zero the Fermi level. This will only
+  //                  take effect if plotFermi is true.
   // If the user checks the box to display band data, displayBandData
   // will be set to be true
   bool getKPointInfo(Molecule* mol, size_t& numKPoints,
                      QString& kPointInfo, bool& displayBandData,
-                     bool& limitY, double& minY, double& maxY);
+                     bool& limitY, double& minY, double& maxY, bool& plotFermi,
+                     double& fermi, bool& zeroFermi);
 
   void displayInvalidFormatMessage();
 

@@ -21,6 +21,8 @@
 
 namespace Avogadro {
 
+class YaehmopExtension;
+
 namespace Ui {
 class YaehmopTotalDOSDialog;
 }
@@ -40,6 +42,8 @@ public:
   // Returns true if it was able to parse the given input successfully and
   // if the user did not cancel. The string should already be ready to be
   // added to the yaehmop input.
+  // @param yext The yaehmop extension caller (needed to set a member variable
+  //             in it.
   // @param numValElectrons Will be set to the number of valence electrons.
   // @param numKPoints Will be set to the number of kpoints on success. It
   //                   will be zero on failure.
@@ -57,14 +61,16 @@ public:
   // @param limitY Should we limit the y-range?
   // @param minY MinY if we are limiting the y-range.
   // @param maxY MaxY if we are limiting the y-range.
+  // @param zeroFermi Whether or not to zero the Fermi level.
   // @return True if the parse was successful and the user did not cancel.
   //         False otherwise.
 
-  bool getNumValAndKPoints(size_t& numValElectrons, size_t& numKPoints,
+  bool getNumValAndKPoints(YaehmopExtension* yext,
+                           size_t& numValElectrons, size_t& numKPoints,
                            QString& kPoints, bool& displayDOSData,
                            bool& useSmoothing, double& stepE,
                            double& broadening, bool& limitY,
-                           double& minY, double& maxY);
+                           double& minY, double& maxY, bool& zeroFermi);
 
   void displayInvalidFormatMessage();
 
