@@ -100,7 +100,7 @@ namespace Avogadro {
     maxY = m_ui->spin_maxY->value();
     plotFermi = m_ui->cb_plotFermi->isChecked();
     fermi = m_ui->spin_fermi->value();
-    zeroFermi = (plotFermi ? m_ui->cb_zeroFermi->isChecked() : plotFermi);
+    zeroFermi = (plotFermi ? m_ui->cb_zeroFermi->isChecked() : false);
     return true;
   }
 

@@ -51,6 +51,11 @@ using namespace Eigen;
 
 namespace Avogadro
 {
+  enum YaehmopExtensionIndex
+  {
+    ActionIndex = 0,
+    SeparatorIndex
+  };
 
   YaehmopExtension::YaehmopExtension(QObject *parent)
     : Extension(parent),
@@ -58,7 +63,7 @@ namespace Avogadro
       m_dosKPoints("15x15x15"),
       m_useSmoothing(true),
       m_eStep(0.1),
-      m_broadening(1.0),
+      m_broadening(0.1),
       m_displayData(false),
       m_limitY(false),
       m_minY(0.0),
@@ -67,15 +72,22 @@ namespace Avogadro
       m_fermi(0.0),
       m_zeroFermi(false)
   {
-    // create an action for our first action
     QAction *action = new QAction( this );
-    action->setText(tr("Calculate Band Structure"));
+    action->setSeparator(true);
+    action->setData(SeparatorIndex);
+    m_actions.append(action);
+
+    // create an action for our first action
+    action = new QAction( this );
+    action->setText(tr("Calculate Band Structure..."));
+    action->setData(ActionIndex);
     m_actions.append(action);
     connect(action, SIGNAL(triggered()), SLOT(calculateBandStructure()));
 
     // create an action for our second action
     action = new QAction(this);
-    action->setText(tr("Calculate Total Density of States"));
+    action->setText(tr("Calculate Total Density of States..."));
+    action->setData(ActionIndex);
     m_actions.append(action);
     connect(action, SIGNAL(triggered()), SLOT(calculateTotalDOS()));
 
@@ -84,16 +96,19 @@ namespace Avogadro
     // create an action for our third action
     action = new QAction( this );
     action->setText( tr("Plot Partial Density of States"));
+    action->setData(ActionIndex);
     m_actions.append(action);
     connect(action, SIGNAL(triggered()), SLOT(plotPartialDOS()));
 */
     action = new QAction( this );
-    action->setText( tr("Set Parameters File"));
+    action->setText(tr("Set Parameters File..."));
+    action->setData(ActionIndex);
     m_actions.append(action);
     connect(action, SIGNAL(triggered()), SLOT(setParametersFile()));
 
     action = new QAction( this );
-    action->setText(tr("Execute Custom Input"));
+    action->setText(tr("Execute Custom Input..."));
+    action->setData(ActionIndex);
     m_actions.append(action);
     connect(action, SIGNAL(triggered()), SLOT(executeCustomInput()));
   }
@@ -109,7 +124,12 @@ namespace Avogadro
 
   QString YaehmopExtension::menuPath(QAction *action) const
   {
-    return tr("E&xtensions") + '>' + tr("Yaehmop");
+    int i = action->data().toInt();
+
+    if (i == SeparatorIndex)
+      return QString();
+
+    return tr("E&xtensions") + '>' + tr("&Yaehmop");
   }
 
   QDockWidget * YaehmopExtension::dockWidget()
@@ -130,6 +150,66 @@ namespace Avogadro
                                 const specialKPoint& b)
   {
     return distance(a.coords, b.coords);
+  }
+
+  void YaehmopExtension::writeSettings(QSettings &settings) const
+  {
+    settings.beginGroup("yaehmopextension");
+
+    settings.beginGroup("generic");
+    settings.setValue("displayData", m_displayData);
+    settings.setValue("limitY", m_limitY);
+    settings.setValue("minY", m_minY);
+    settings.setValue("maxY", m_maxY);
+    settings.setValue("zeroFermi", m_zeroFermi);
+    settings.endGroup();
+
+    settings.beginGroup("bandStructure");
+    settings.setValue("bandNumKPoints",
+                      static_cast<unsigned long long>(m_bandNumKPoints));
+    settings.setValue("plotFermi", m_plotFermi);
+    settings.setValue("fermi", m_fermi);
+    settings.endGroup();
+
+    settings.beginGroup("DOS");
+    settings.setValue("dosKPoints", m_dosKPoints);
+    settings.setValue("useSmoothing", m_useSmoothing);
+    settings.setValue("eStep", m_eStep);
+    settings.setValue("broadening", m_broadening);
+    settings.endGroup();
+
+    settings.endGroup();
+  }
+
+  void YaehmopExtension::readSettings(QSettings &settings)
+  {
+    settings.beginGroup("yaehmopextension");
+
+    settings.beginGroup("generic");
+    m_displayData = settings.value("displayData", m_displayData).toBool();
+    m_limitY = settings.value("limitY", m_limitY).toBool();
+    m_minY = settings.value("minY", m_minY).toDouble();
+    m_maxY = settings.value("maxY", m_minY).toDouble();
+    m_zeroFermi = settings.value("zeroFermi", m_zeroFermi).toBool();
+    settings.endGroup();
+
+    settings.beginGroup("bandStructure");
+    m_bandNumKPoints =
+      settings.value("bandNumKPoints",
+                     static_cast<unsigned long long>(m_bandNumKPoints))
+                       .toULongLong();
+    m_plotFermi = settings.value("plotFermi", m_plotFermi).toBool();
+    m_fermi = settings.value("fermi", m_fermi).toDouble();
+    settings.endGroup();
+
+    settings.beginGroup("DOS");
+    m_dosKPoints = settings.value("dosKPoints", m_dosKPoints).toString();
+    m_useSmoothing = settings.value("useSmoothing", m_useSmoothing).toBool();
+    m_eStep = settings.value("eStep", m_eStep).toDouble();
+    m_broadening = settings.value("broadening", m_broadening).toDouble();
+    settings.endGroup();
+
+    settings.endGroup();
   }
 
   void YaehmopExtension::calculateBandStructure() const
@@ -249,7 +329,7 @@ namespace Avogadro
     }
 
     PlotWidget *pw = new PlotWidget;
-    pw->setWindowTitle("Yaehmop Band Structure");
+    pw->setWindowTitle(tr("Yaehmop Band Structure"));
 
     // Let's make our widget a reasonable size
     pw->resize(500, 500);
@@ -283,15 +363,16 @@ namespace Avogadro
 
     // If we have the fermi energy, plot that as a dashed line
     if (m_plotFermi) {
+      double tempFermi = (m_zeroFermi ? 0 : m_fermi);
       size_t num = 75;
       for (size_t i = 0; i < num; i += 2) {
         PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
         tempPo->addPoint(QPointF(static_cast<double>(i) /
                                  static_cast<double>(num) *
-                                 static_cast<double>(max_x), m_fermi));
+                                 static_cast<double>(max_x), tempFermi));
         tempPo->addPoint(QPointF(static_cast<double>(i + 1) /
                                  static_cast<double>(num) *
-                                 static_cast<double>(max_x), m_fermi));
+                                 static_cast<double>(max_x), tempFermi));
         pw->addPlotObject(tempPo);
       }
     }
@@ -352,7 +433,7 @@ namespace Avogadro
     pw->show();
   }
 
-  void YaehmopExtension::calculateTotalDOS() const
+  void YaehmopExtension::calculateTotalDOS()
   {
     QString input = createYaehmopTotalDOSInput();
     // If the input is empty, either the user cancelled
@@ -364,7 +445,7 @@ namespace Avogadro
 
     // Execute Yaehmop
     if (!executeYaehmop(input, output)) {
-      qDebug() << "Error while executing Yaehmop in "<<  __FUNCTION__;
+      qDebug() << "Error while executing Yaehmop in " <<  __FUNCTION__;
       return;
     }
 
@@ -449,7 +530,7 @@ namespace Avogadro
     }
 
     PlotWidget *pw = new PlotWidget;
-    pw->setWindowTitle("Yaehmop Total DOS");
+    pw->setWindowTitle(tr("Yaehmop Total DOS"));
 
     // Let's make our widget a reasonable size
     pw->resize(500, 500);
@@ -487,7 +568,10 @@ namespace Avogadro
                                  static_cast<double>(num) *
                                  static_cast<double>(max_x), fermi));
         pw->addPlotObject(tempPo);
+
       }
+      // Also set the unadjusted fermi level in memory
+      m_fermi = unadjustedFermi;
     }
 
     // If we have the integration data, plot that as well. Make it blue.
@@ -597,7 +681,7 @@ namespace Avogadro
 
     OpenBabel::OBUnitCell *cell = m_molecule->OBUnitCell();
     if (!cell) {
-      QMessageBox::critical(NULL,
+      QMessageBox::warning(NULL,
                         tr("Avogadro"),
                         tr("Cannot calculate band structure: no unit cell!"));
       qDebug() << "Error in " << __FUNCTION__ << ": there is no unit cell";
@@ -647,9 +731,9 @@ namespace Avogadro
 
     OpenBabel::OBUnitCell *cell = m_molecule->OBUnitCell();
     if (!cell) {
-      QMessageBox::critical(NULL,
-                        tr("Avogadro"),
-                        tr("Cannot calculate total DOS: no unit cell!"));
+      QMessageBox::warning(NULL,
+                           tr("Avogadro"),
+                           tr("Cannot calculate total DOS: no unit cell!"));
       qDebug() << "Error in " << __FUNCTION__ << ": there is no unit cell";
       return "";
     }
@@ -819,7 +903,7 @@ namespace Avogadro
   {
     OpenBabel::OBUnitCell *cell = m_molecule->OBUnitCell();
     if (!cell) {
-      QMessageBox::critical(NULL,
+      QMessageBox::warning(NULL,
                         tr("Avogadro"),
                         tr("Cannot calculate band structure: no unit cell!"));
       qDebug() << "Error in " << __FUNCTION__ << ": there is no unit cell";
@@ -959,9 +1043,8 @@ namespace Avogadro
 
     size_t numPoints = densities.size();
     double pi = 3.14159265358979;
-    double adjBroad = 20.0 / broadening;
     // Normalization factor
-    double normFact = sqrt(adjBroad / pi);
+    double normFact = 1 / sqrt(2.0 * pow(broadening, 2.0) * pi);
     double minE = energies[0];
     double maxE = energies[numPoints - 1];
     size_t numSteps = ceil(fabs(maxE - minE) / stepE) + 1;
@@ -983,7 +1066,7 @@ namespace Avogadro
         double diffE = pow(currE - energies[j], 2.0);
         //qDebug() << "diffE is " << QString::number(diffE);
         if (diffE <= 25.0) {
-          density += densities[j] * exp(-adjBroad * diffE);
+          density += densities[j] * exp(-diffE / (2 * pow(broadening, 2.0)));
           //qDebug() << "densities[j] is " << QString::number(densities[j]);
           //qDebug() << "exp(-broadening * diffE) is "
           //         << QString::number(exp(-broadening * diffE));

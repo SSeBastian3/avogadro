@@ -50,7 +50,7 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the number of k-points that will be connecting the special k-points. More of these k-points will smooth out the graph, but the calculation may take longer.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
      <property name="suffix">
       <string/>
@@ -69,7 +69,7 @@
    <item row="5" column="0" colspan="2">
     <widget class="QTextEdit" name="edit_kpoints">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the k-points for the calculation in a grid format as follows:&lt;/p&gt;&lt;p&gt;&amp;lt;l&amp;gt;x&amp;lt;m&amp;gt;x&amp;lt;n&amp;gt;&lt;/p&gt;&lt;p&gt;where l, m, and n are integers. For example, 5x5x5 would be a grid with 5 elements in every direction. You may also enter k-points in the following format:&lt;/p&gt;&lt;p&gt;&amp;lt;x&amp;gt; &amp;lt;y&amp;gt; &amp;lt;z&amp;gt; &amp;lt;weight&amp;gt;&lt;/p&gt;&lt;p&gt;where x, y, and z are the three dimensional coordinates of the k-point in reciprocal space, and the weight is the weight of the k-point. &lt;/p&gt;&lt;p&gt;More k-points will result in a more accurate calculation.&lt;/p&gt;&lt;p&gt;Please note that the orientation of your cell may have an effect on the locations of these reciprocal space points.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the k-points for the calculation in a grid format as follows:&lt;/p&gt;&lt;p&gt;&amp;lt;l&amp;gt;x&amp;lt;m&amp;gt;x&amp;lt;n&amp;gt;&lt;/p&gt;&lt;p&gt;where l, m, and n are integers. For example, 5x5x5 would be a grid with 5 elements in every direction. You may also enter k-points in the following format:&lt;/p&gt;&lt;p&gt;&amp;lt;x&amp;gt; &amp;lt;y&amp;gt; &amp;lt;z&amp;gt; &amp;lt;weight&amp;gt;&lt;/p&gt;&lt;p&gt;where x, y, and z are the three dimensional coordinates of the k-point in reciprocal space, and the weight is the weight of the k-point. &lt;/p&gt;&lt;p&gt;More k-points will result in a more accurate calculation. However, your computer may shut down the process if it uses up too much memory.&lt;/p&gt;&lt;p&gt;Please note that the orientation of your cell may have an effect on the locations of these reciprocal space points.&lt;/p&gt;&lt;p&gt;Default: 15x15x15&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="html">
       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -77,16 +77,6 @@
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;15x15x15&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <widget class="QCheckBox" name="cb_displayData">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to display the density of states data in a&lt;/p&gt;&lt;p&gt;pop-up box after the calculation finishes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Data may be copied and pasted into a separate file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="text">
-      <string>Display DOS data?</string>
      </property>
     </widget>
    </item>
@@ -103,7 +93,7 @@ p, li { white-space: pre-wrap; }
    <item row="8" column="1">
     <widget class="QCheckBox" name="cb_useSmoothing">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to use Gaussian smoothing to smooth the data.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Smoothing is typically performed for density of states data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to use Gaussian smoothing to smooth the data.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Smoothing is typically performed for density of states data.&lt;/p&gt;&lt;p&gt;Default: on&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Use Gaussian Smoothing?</string>
@@ -116,13 +106,19 @@ p, li { white-space: pre-wrap; }
    <item row="10" column="1">
     <widget class="QDoubleSpinBox" name="spin_energyStep">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The energy step size for Gaussian smoothing. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The energy step size for Gaussian smoothing. &lt;/p&gt;&lt;p&gt;Default: 0.1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
      </property>
      <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
      <property name="prefix">
       <string/>
+     </property>
+     <property name="suffix">
+      <string> eV</string>
      </property>
      <property name="decimals">
       <number>8</number>
@@ -141,10 +137,13 @@ p, li { white-space: pre-wrap; }
    <item row="11" column="1">
     <widget class="QDoubleSpinBox" name="spin_broadening">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gaussian broadening for Gaussian smoothing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gaussian broadening for Gaussian smoothing. The Gaussian broadening is the standard deviation.&lt;/p&gt;&lt;p&gt;Default: 0.1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <property name="suffix">
+      <string> eV</string>
      </property>
      <property name="decimals">
       <number>8</number>
@@ -156,11 +155,11 @@ p, li { white-space: pre-wrap; }
       <double>0.100000000000000</double>
      </property>
      <property name="value">
-      <double>1.000000000000000</double>
+      <double>0.100000000000000</double>
      </property>
     </widget>
    </item>
-   <item row="15" column="0" colspan="2">
+   <item row="16" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -170,34 +169,17 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="12" column="1">
-    <widget class="QCheckBox" name="cb_limitY">
-     <property name="text">
-      <string>Limit y-range?</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="1">
-    <widget class="QDoubleSpinBox" name="spin_minY">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="decimals">
-      <number>5</number>
-     </property>
-     <property name="minimum">
-      <double>-10000.000000000000000</double>
-     </property>
-     <property name="maximum">
-      <double>10000.000000000000000</double>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="1">
+   <item row="15" column="1">
     <widget class="QDoubleSpinBox" name="spin_maxY">
      <property name="enabled">
       <bool>false</bool>
      </property>
+     <property name="prefix">
+      <string>Max Y: </string>
+     </property>
+     <property name="suffix">
+      <string> eV</string>
+     </property>
      <property name="decimals">
       <number>5</number>
      </property>
@@ -209,36 +191,55 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="13" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
+   <item row="7" column="1">
+    <widget class="QCheckBox" name="cb_displayData">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to display the density of states data in a&lt;/p&gt;&lt;p&gt;pop-up box after the calculation finishes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Data may be copied and pasted into a separate file.&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
-      <string>Min Y:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <string>Display DOS data?</string>
      </property>
     </widget>
    </item>
-   <item row="14" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Max Y:</string>
+   <item row="15" column="0">
+    <widget class="QDoubleSpinBox" name="spin_minY">
+     <property name="enabled">
+      <bool>false</bool>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     <property name="prefix">
+      <string>Min Y: </string>
+     </property>
+     <property name="suffix">
+      <string> eV</string>
+     </property>
+     <property name="decimals">
+      <number>5</number>
+     </property>
+     <property name="minimum">
+      <double>-10000.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>10000.000000000000000</double>
      </property>
     </widget>
    </item>
    <item row="6" column="1">
     <widget class="QCheckBox" name="cb_zeroFermi">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Subtracts the Fermi energy from all other energies so that the Fermi energy is set to be zero.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Subtracts the Fermi energy from all other energies so that the Fermi energy is set to be zero.&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Zero the Fermi level?</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QCheckBox" name="cb_limitY">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Limit the y-range?&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Limit y-range?</string>
      </property>
     </widget>
    </item>
@@ -246,7 +247,6 @@ p, li { white-space: pre-wrap; }
  </widget>
  <tabstops>
   <tabstop>spin_numValElectrons</tabstop>
-  <tabstop>edit_kpoints</tabstop>
   <tabstop>cb_zeroFermi</tabstop>
   <tabstop>cb_displayData</tabstop>
   <tabstop>cb_useSmoothing</tabstop>
@@ -255,6 +255,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>cb_limitY</tabstop>
   <tabstop>spin_minY</tabstop>
   <tabstop>spin_maxY</tabstop>
+  <tabstop>edit_kpoints</tabstop>
  </tabstops>
  <resources/>
  <connections>

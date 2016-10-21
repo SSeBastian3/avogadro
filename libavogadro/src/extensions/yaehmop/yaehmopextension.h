@@ -50,9 +50,12 @@ namespace Avogadro {
     void setDOSKPoints(const QString& dosKPoints)
       { m_dosKPoints = dosKPoints; };
 
+    void writeSettings(QSettings &settings) const;
+    void readSettings(QSettings &settings);
+
   public slots:
     void calculateBandStructure() const;
-    void calculateTotalDOS() const;
+    void calculateTotalDOS();
     void plotPartialDOS() const;
     void setParametersFile();
     void executeCustomInput() const;
