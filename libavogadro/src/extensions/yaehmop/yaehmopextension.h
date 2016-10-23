@@ -54,9 +54,9 @@ namespace Avogadro {
     void readSettings(QSettings &settings);
 
   public slots:
-    void calculateBandStructure() const;
+    void calculateBandStructure();
     void calculateTotalDOS();
-    void plotPartialDOS() const;
+    void plotPartialDOS();
     void setParametersFile();
     void executeCustomInput() const;
 
