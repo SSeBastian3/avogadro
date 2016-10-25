@@ -212,7 +212,7 @@ namespace Avogadro
     settings.endGroup();
   }
 
-  void YaehmopExtension::calculateBandStructure() const
+  void YaehmopExtension::calculateBandStructure()
   {
     QString input = createYaehmopBandInput();
     // If the input is empty, either the user cancelled
@@ -667,7 +667,7 @@ namespace Avogadro
     pw->show();
   }
 
-  void YaehmopExtension::plotPartialDOS() const
+  void YaehmopExtension::plotPartialDOS()
   {
 
   }
