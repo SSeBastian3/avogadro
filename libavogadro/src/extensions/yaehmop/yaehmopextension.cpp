@@ -906,6 +906,9 @@ namespace Avogadro
     p.start(program, arguments);
 
     if (!p.waitForStarted()) {
+      QMessageBox::warning(NULL,
+                        tr("Avogadro"),
+                        tr("Error: Yaehmop failed to start!"));
       qDebug() << "Error: Yaehmop executable at" << program
                << "failed to start.";
       return false;
@@ -918,6 +921,9 @@ namespace Avogadro
     p.closeWriteChannel();
 
     if (!p.waitForFinished()) {
+      QMessageBox::warning(NULL,
+                        tr("Avogadro"),
+                        tr("Error: Yaehmop failed to finish!"));
       qDebug() << "Error: Yaehmop executable at" << program
                << "failed to finish.";
       output = p.readAll();
@@ -929,6 +935,9 @@ namespace Avogadro
     output = p.readAll();
 
     if (exitStatus == QProcess::CrashExit) {
+      QMessageBox::warning(NULL,
+                        tr("Avogadro"),
+                        tr("Error: Yaehmop crashed!"));
       qDebug() << "Error: Yaehmop crashed!\n";
       qDebug() << "Output is as follows:\n" << output;
       return false;
