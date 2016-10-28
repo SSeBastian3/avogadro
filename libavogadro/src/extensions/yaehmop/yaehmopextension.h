@@ -53,6 +53,10 @@ namespace Avogadro {
     void writeSettings(QSettings &settings) const;
     void readSettings(QSettings &settings);
 
+    // Check the output for known errors
+    // Return false if an error was found
+    bool checkForErrors(const QString& output, QString& error);
+
   public slots:
     void calculateBandStructure();
     void calculateTotalDOS();

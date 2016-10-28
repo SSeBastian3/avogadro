@@ -212,6 +212,28 @@ namespace Avogadro
     settings.endGroup();
   }
 
+  // Returns false if an error was found
+  bool YaehmopExtension::checkForErrors(const QString& output, QString& error)
+  {
+    QStringList lines = output.split(QRegExp("[\r\n]"),
+                                     QString::SkipEmptyParts);
+    bool zhegvErrorFound = false;
+
+    for (size_t i = 0; i < lines.size(); ++i) {
+      // This usually means that ZHEGV failed
+      if (lines[i].contains("ERROR: Problems in the diagonalization, try") &&
+          !zhegvErrorFound) {
+        error += "Error during diagonalization. ZHEGV returned with an error.";
+        error += "\nTry changing the k points.\n";
+        zhegvErrorFound = true;
+      }
+    }
+
+    if (zhegvErrorFound)
+      return false;
+    return true;
+  }
+
   void YaehmopExtension::calculateBandStructure()
   {
     QString input = createYaehmopBandInput();
@@ -224,6 +246,17 @@ namespace Avogadro
 
     // Execute Yaehmop
     executeYaehmop(input, output);
+
+    QString error;
+    if (!checkForErrors(output, error)) {
+      QMessageBox::warning(NULL,
+                        tr("Yaehmop"),
+                        tr((QString("Data may be invalid. "
+                                    "Error received in calculation:\n")
+                            + error).toStdString().c_str()));
+      qDebug() << "Full Yaehmop output is as follows:\n" << output;
+      qDebug() << "Data may be invalid. Error received in calculation:\n" + error;
+    }
 
     // qDebug() << "Output is:";
     // qDebug() << output;
@@ -447,6 +480,17 @@ namespace Avogadro
     if (!executeYaehmop(input, output)) {
       qDebug() << "Error while executing Yaehmop in " <<  __FUNCTION__;
       return;
+    }
+
+    QString error;
+    if (!checkForErrors(output, error)) {
+      QMessageBox::warning(NULL,
+                        tr("Yaehmop"),
+                        tr((QString("Data may be invalid. "
+                                    "Error received in calculation:\n")
+                            + error).toStdString().c_str()));
+      qDebug() << "Full Yaehmop output is as follows:\n" << output;
+      qDebug() << "Data may be invalid. Error received in calculation:\n" + error;
     }
 
     //qDebug() << "input is " << input;
@@ -849,6 +893,8 @@ namespace Avogadro
     QString program = QCoreApplication::applicationDirPath() + "/yaehmop";
 #endif
 
+    //qDebug() << "input is: \n" << input;
+
     QStringList arguments;
     arguments << "--use_stdin_stdout";
 
@@ -894,6 +940,8 @@ namespace Avogadro
       qDebug() << "Output is as follows:\n" << output;
       return false;
     }
+
+    //qDebug() << "output is: \n" << output;
 
     // We did it!
     return true;
