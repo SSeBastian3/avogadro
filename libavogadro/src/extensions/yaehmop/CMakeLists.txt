@@ -38,17 +38,17 @@ if(NOT ${USE_SYSTEM_YAEHMOP} AND
   # Linux
   if(UNIX AND NOT APPLE)
     set(YAEHMOP_DOWNLOAD_LOCATION "https://github.com/psavery/yaehmop/releases/download/${YAEHMOP_V}/linux64-yaehmop.tgz")
-    set(MD5 "37ce8aba9acb60c493cf4d3608c29f7b")
+    set(MD5 "92a2738f36b9362a2153a6798574de0e")
 
   # Apple
   elseif(APPLE)
     set(YAEHMOP_DOWNLOAD_LOCATION "https://github.com/psavery/yaehmop/releases/download/${YAEHMOP_V}/mac64-yaehmop.tgz")
-    set(MD5 "66aed6aaf68c5bb0aaa4e0609ceaaa4e")
+    set(MD5 "06a07e17e9d50251c292b18048eff7d0")
 
   # Windows
   elseif(WIN32 AND NOT CYGWIN)
     set(YAEHMOP_DOWNLOAD_LOCATION "https://github.com/psavery/yaehmop/releases/download/${YAEHMOP_V}/win32-yaehmop.exe.tgz")
-    set(MD5 "bacf77bea49ad1d8898237f801fb1595")
+    set(MD5 "a0d0ecd7453f58ac8ff5f898de208ace")
 
   else()
     message(FATAL_ERROR "Yaehmop is not supported with the current OS type!")
