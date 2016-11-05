@@ -30,22 +30,25 @@ else(WIN32)
   set(YAEHMOP_NAME "yaehmop")
 endif(WIN32)
 
-if(NOT EXISTS ${CMAKE_BINARY_DIR}/bin/${YAEHMOP_NAME})
+option(USE_SYSTEM_YAEHMOP "Use system YAeHMOP" OFF)
+
+if(NOT ${USE_SYSTEM_YAEHMOP} AND
+   NOT EXISTS ${CMAKE_BINARY_DIR}/bin/${YAEHMOP_NAME})
    set(YAEHMOP_V "v3.0.1-bug-fix")
   # Linux
   if(UNIX AND NOT APPLE)
     set(YAEHMOP_DOWNLOAD_LOCATION "https://github.com/psavery/yaehmop/releases/download/${YAEHMOP_V}/linux64-yaehmop.tgz")
-    set(MD5 "aa43b70afdb4041ad4cc0dd5eb9dd0cb")
+    set(MD5 "37ce8aba9acb60c493cf4d3608c29f7b")
 
   # Apple
   elseif(APPLE)
     set(YAEHMOP_DOWNLOAD_LOCATION "https://github.com/psavery/yaehmop/releases/download/${YAEHMOP_V}/mac64-yaehmop.tgz")
-    set(MD5 "9a33578c5508acefc0f37683e8fc8248")
+    set(MD5 "66aed6aaf68c5bb0aaa4e0609ceaaa4e")
 
   # Windows
   elseif(WIN32 AND NOT CYGWIN)
     set(YAEHMOP_DOWNLOAD_LOCATION "https://github.com/psavery/yaehmop/releases/download/${YAEHMOP_V}/win32-yaehmop.exe.tgz")
-    set(MD5 "1b3cde6c77ed8b461bbafef031923721")
+    set(MD5 "bacf77bea49ad1d8898237f801fb1595")
 
   else()
     message(FATAL_ERROR "Yaehmop is not supported with the current OS type!")
