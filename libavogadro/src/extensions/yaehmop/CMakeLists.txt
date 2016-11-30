@@ -8,12 +8,14 @@ set(yaehmopextension_SRCS
   specialkpoints.cpp
   yaehmopbanddialog.cpp
   yaehmopextension.cpp
+  yaehmopprojecteddosdialog.cpp
   yaehmoptotaldosdialog.cpp
   yaehmopout.cpp
 )
 
 set(yaehmopextension_UIS
   yaehmopbanddialog.ui
+  yaehmopprojecteddosdialog.ui
   yaehmoptotaldosdialog.ui
 )
 
