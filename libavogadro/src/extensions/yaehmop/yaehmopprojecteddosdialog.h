@@ -54,6 +54,8 @@ public:
   //              chooses. It will be left blank if no title is given.
   // @param projections The projections information exactly as it is to be
   //                    entered into YAeHMOP.
+  // @param displayTotalDOS Whether or not to display the Total DOS in
+  //                        the plot.
   // @param displayDOSData This will be set to true if we are to
   //                       display the DOS data for the user.
   // @param useSmoothing This will be set to true if we are to
@@ -72,7 +74,8 @@ public:
   bool getNumValAndKPoints(YaehmopExtension* yext,
                            size_t& numValElectrons, size_t& numKPoints,
                            QString& kPoints, QStringList& titles,
-                           QString& projections, bool& displayDOSData,
+                           QString& projections, bool& displayTotalDOS,
+                           bool& displayDOSData,
                            bool& useSmoothing, double& stepE,
                            double& broadening, bool& limitY,
                            double& minY, double& maxY, bool& zeroFermi);

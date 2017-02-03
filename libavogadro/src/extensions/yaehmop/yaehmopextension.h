@@ -101,6 +101,7 @@ namespace Avogadro {
     bool m_useSmoothing;
     double m_eStep;
     double m_broadening;
+    bool m_pdosDisplayTotalDOS;
     bool m_displayData;
     bool m_limitY;
     double m_minY;

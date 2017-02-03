@@ -67,6 +67,7 @@ namespace Avogadro
       m_useSmoothing(true),
       m_eStep(0.1),
       m_broadening(0.1),
+      m_pdosDisplayTotalDOS(false),
       m_displayData(false),
       m_limitY(false),
       m_minY(0.0),
@@ -160,6 +161,7 @@ namespace Avogadro
 
     settings.beginGroup("generic");
     settings.setValue("displayData", m_displayData);
+    settings.setValue("pdosDisplayTotalDOS", m_pdosDisplayTotalDOS);
     settings.setValue("limitY", m_limitY);
     settings.setValue("minY", m_minY);
     settings.setValue("maxY", m_maxY);
@@ -189,6 +191,8 @@ namespace Avogadro
 
     settings.beginGroup("generic");
     m_displayData = settings.value("displayData", m_displayData).toBool();
+    m_pdosDisplayTotalDOS = settings.value("pdosDisplayTotalDOS",
+                                           m_pdosDisplayTotalDOS).toBool();
     m_limitY = settings.value("limitY", m_limitY).toBool();
     m_minY = settings.value("minY", m_minY).toDouble();
     m_maxY = settings.value("maxY", m_minY).toDouble();
@@ -767,6 +771,45 @@ namespace Avogadro
     }
   }
 
+  inline QString colorName(size_t i)
+  {
+    switch(i) {
+    case 0:
+      return "Cyan";
+    case 1:
+      return "Dark green";
+    case 2:
+      return "Purple";
+    case 3:
+      return "Black";
+    case 4:
+      return "Yellow";
+    case 5:
+      return "Lime green";
+    case 6:
+      return "Dark orange";
+    case 7:
+      return "Brown";
+    case 8:
+      return "Light gray";
+    case 9:
+      return "Dark blue";
+    case 10:
+      return "Light pink";
+    case 11:
+      return "Olive";
+    case 12:
+      return "Dark gray";
+    case 13:
+      return "Light blue";
+    case 14:
+      return "Salmon";
+    default:
+      // Return black if we are out of colors
+      return "Black";
+    }
+  }
+
   void YaehmopExtension::calculateProjectedDOS()
   {
     QString input = createYaehmopProjectedDOSInput();
@@ -828,20 +871,22 @@ namespace Avogadro
     }
     output.remove(ind + QString("END OF DOS\n").size(), output.size());
 
-    qDebug() << "output is now: " << output;
-
     //qDebug() << "After trimming, output is now:";
     //qDebug() << output;
 
     QVector<double> totalDensities;
     QVector<double> totalEnergies;
 
-    if (!YaehmopOut::readTotalDOSData(output, totalDensities, totalEnergies) ||
-        totalDensities.size() == 0 ||
-        totalEnergies.size() != totalDensities.size()) {
-      qDebug() << "Error in " << __FUNCTION__
-               << ": failed to read total DOS data!";
-      return;
+    // Try to read the DOS data if we are supposed to
+    if (m_pdosDisplayTotalDOS) {
+      if (!YaehmopOut::readTotalDOSData(output, totalDensities,
+                                        totalEnergies) ||
+          totalDensities.size() == 0 ||
+          totalEnergies.size() != totalDensities.size()) {
+        qDebug() << "Error in " << __FUNCTION__
+                 << ": failed to read total DOS data!";
+        return;
+      }
     }
 
     // Now to read projected DOS data
@@ -881,7 +926,8 @@ namespace Avogadro
 
     // Let's smooth the data if we need to
     if (m_useSmoothing) {
-      smoothData(totalDensities, totalEnergies, m_eStep, m_broadening);
+      if (m_pdosDisplayTotalDOS)
+        smoothData(totalDensities, totalEnergies, m_eStep, m_broadening);
 
       // Now smooth the projected DOS data
       for (size_t i = 0; i < projDensities.size(),
@@ -891,9 +937,11 @@ namespace Avogadro
 
       // Let's get the integration data for the total DOS as well
       // This assumes uniform spacing between the energy levels
-      double xDiff = (totalEnergies.size() > 1 ?
-                      totalEnergies[1] - totalEnergies[0]: 0.0);
-      integration = integrateDataTrapezoidal(xDiff, totalDensities);
+      if (m_pdosDisplayTotalDOS) {
+        double xDiff = (totalEnergies.size() > 1 ?
+                        totalEnergies[1] - totalEnergies[0]: 0.0);
+        integration = integrateDataTrapezoidal(xDiff, totalDensities);
+      }
     }
 
     // Plotting is fairly simple - densities on x axis and energies on y
@@ -901,14 +949,31 @@ namespace Avogadro
     double min_y = 1e300, max_y = -1e300;
     double min_x = 0.0, max_x = -1e300;
 
-    for (size_t i = 0; i < totalDensities.size(); ++i) {
-      // Correct the max_x, min_y, and max_y
-      if (totalDensities[i] > max_x)
-        max_x = totalDensities[i];
-      if (totalEnergies[i] < min_y)
-        min_y = totalEnergies[i];
-      if (totalEnergies[i] > max_y)
-        max_y = totalEnergies[i];
+    if (m_pdosDisplayTotalDOS) {
+      for (size_t i = 0; i < totalDensities.size(); ++i) {
+        // Correct the max_x, min_y, and max_y
+        if (totalDensities[i] > max_x)
+          max_x = totalDensities[i];
+        if (totalEnergies[i] < min_y)
+          min_y = totalEnergies[i];
+        if (totalEnergies[i] > max_y)
+          max_y = totalEnergies[i];
+      }
+    }
+    else {
+      for (size_t i = 0; i < projDensities.size(),
+                         i < projEnergies.size(); ++i) {
+        for (size_t j = 0; j < projDensities[i].size(),
+                           j < projEnergies[i].size(); ++j) {
+          // Correct the max_x, min_y, and max_y
+          if (projDensities[i][j] > max_x)
+            max_x = projDensities[i][j];
+          if (projEnergies[i][j] < min_y)
+            min_y = projEnergies[i][j];
+          if (projEnergies[i][j] > max_y)
+            max_y = projEnergies[i][j];
+        }
+      }
     }
 
     PlotWidget *pw = new PlotWidget;
@@ -936,8 +1001,10 @@ namespace Avogadro
     // Add the objects
     PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
     po->linePen().setWidth(2);
-    for (size_t i = 0; i < totalDensities.size(); ++i)
-      po->addPoint(QPointF(totalDensities[i], totalEnergies[i]));
+    if (m_pdosDisplayTotalDOS) {
+      for (size_t i = 0; i < totalDensities.size(); ++i)
+        po->addPoint(QPointF(totalDensities[i], totalEnergies[i]));
+    }
 
     // Add the projected objects
     for (size_t i = 0; i < projDensities.size(),
@@ -989,7 +1056,7 @@ namespace Avogadro
     pw->addPlotObject(po);
     pw->setAttribute(Qt::WA_DeleteOnClose);
 
-    // If we are to display band data, show that first
+    // If we are to display DOS data, show that first
     if (m_displayData) {
       QString DOSDataStr;
 
@@ -1000,8 +1067,9 @@ namespace Avogadro
       else
         DOSDataStr += "# Fermi level not found!\n";
 
-      // Add in k point info first
+// I am only using this commented out section for debug right now
 /*
+      // Add in k point info first
       DOSDataStr += "\n# k points\n";
       DOSDataStr += "# <x> <y> <z> <weight>\n";
 
@@ -1023,23 +1091,41 @@ namespace Avogadro
         DOSDataStr += QString("# ") + inputSplit[i] + "\n";
       }
 */
+
       // Now for the actual data
-      DOSDataStr += "\n# <density (x)> <energy (y)>\n";
+      if (m_pdosDisplayTotalDOS) {
+        DOSDataStr += "\n# Total DOS Data\n";
+        DOSDataStr += "# <density (x)> <energy (y)>\n";
 
-      for (size_t i = 0; i < totalDensities.size(),
-                         i < totalEnergies.size(); ++i) {
-        DOSDataStr += (QString().sprintf("%10.6f", totalDensities[i]) + " " +
-                       QString().sprintf("%10.6f", totalEnergies[i]) + "\n");
-      }
-
-      // If we have integration data, add that too
-      if (integration.size() != 0) {
-        DOSDataStr += "\n\n# Integration Data:\n";
-        DOSDataStr += "\n# <integration> <energies>\n";
-        for (size_t i = 0; i < totalEnergies.size(),
-                           i < integration.size(); ++i) {
-          DOSDataStr += (QString().sprintf("%10.6f", integration[i]) + " " +
+        for (size_t i = 0; i < totalDensities.size(),
+                           i < totalEnergies.size(); ++i) {
+          DOSDataStr += (QString().sprintf("%10.6f", totalDensities[i]) + " " +
                          QString().sprintf("%10.6f", totalEnergies[i]) + "\n");
+        }
+
+        // If we have integration data, add that too
+        if (integration.size() != 0) {
+          DOSDataStr += "\n\n# Integration Data:\n";
+          DOSDataStr += "\n# <integration> <energies>\n";
+          for (size_t i = 0; i < totalEnergies.size(),
+                             i < integration.size(); ++i) {
+            DOSDataStr += (QString().sprintf("%10.6f", integration[i]) + " " +
+                           QString().sprintf("%10.6f",
+                                             totalEnergies[i]) + "\n");
+          }
+        }
+
+      }
+      DOSDataStr += "\n\n# Projected DOS Data\n";
+      for (size_t i = 0; i < projDensities.size(),
+                         i < projEnergies.size(); ++i) {
+        DOSDataStr += (QString("\n# ") + m_projDOSTitles[i]);
+        DOSDataStr += "\n# <density (x)> <energy (y)>\n";
+        for (size_t j = 0; j < projDensities[i].size(),
+                           j < projEnergies[i].size(); ++j) {
+          DOSDataStr += (QString().sprintf("%10.6f", projDensities[i][j]) +
+                         " " + QString().sprintf("%10.6f",
+                                                 projEnergies[i][j]) + "\n");
         }
       }
 
@@ -1047,7 +1133,7 @@ namespace Avogadro
       QDialog* dialog = new QDialog;
       QVBoxLayout* layout = new QVBoxLayout;
       dialog->setLayout(layout);
-      dialog->setWindowTitle(tr("Yaehmop Total DOS Results"));
+      dialog->setWindowTitle(tr("Yaehmop Projected DOS Results"));
       QTextEdit* edit = new QTextEdit;
       layout->addWidget(edit);
       dialog->resize(500, 500);
@@ -1059,6 +1145,26 @@ namespace Avogadro
       dialog->setAttribute(Qt::WA_DeleteOnClose);
       dialog->show();
     }
+
+    // Now let's create the text legend
+    QString legendStr;
+    if (m_pdosDisplayTotalDOS)
+      legendStr += "Total: Red\n";
+
+    for (size_t i = 0; i < m_projDOSTitles.size(); ++i) {
+      legendStr += m_projDOSTitles[i] + ": " + colorName(i) + "\n";
+    }
+
+    QDialog* dialog = new QDialog;
+    QVBoxLayout* layout = new QVBoxLayout;
+    dialog->setLayout(layout);
+    dialog->setWindowTitle(tr("Yaehmop Projected DOS Color Legend"));
+    QTextEdit* edit = new QTextEdit;
+    layout->addWidget(edit);
+    dialog->resize(500, 500);
+    edit->setText(legendStr);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
 
     // Show the plot!
     pw->show();
@@ -1207,8 +1313,8 @@ namespace Avogadro
     YaehmopProjectedDOSDialog d;
     if (!d.getNumValAndKPoints(this, numValElectrons, numKPoints,
                                tempDOSKPoints, m_projDOSTitles, projections,
-                               m_displayData, m_useSmoothing,
-                               m_eStep, m_broadening, m_limitY,
+                               m_pdosDisplayTotalDOS, m_displayData,
+                               m_useSmoothing, m_eStep, m_broadening, m_limitY,
                                m_minY, m_maxY, m_zeroFermi)) {
       return "";
     }
@@ -1308,8 +1414,6 @@ namespace Avogadro
     QString program = QCoreApplication::applicationDirPath() + "/yaehmop";
 #endif
 
-    qDebug() << "input is: \n" << input;
-
     QStringList arguments;
     arguments << "--use_stdin_stdout";
 
@@ -1364,8 +1468,6 @@ namespace Avogadro
       qDebug() << "Output is as follows:\n" << output;
       return false;
     }
-
-    qDebug() << "output is: \n" << output;
 
     // We did it!
     return true;

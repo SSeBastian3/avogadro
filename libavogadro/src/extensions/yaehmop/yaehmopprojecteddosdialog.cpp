@@ -42,6 +42,7 @@ namespace Avogadro {
                                                   QString& kPoints,
                                                   QStringList& titles,
                                                   QString& projections,
+                                                  bool& displayTotalDOS,
                                                   bool& displayDOSData,
                                                   bool& useSmoothing,
                                                   double& stepE,
@@ -55,6 +56,7 @@ namespace Avogadro {
     m_ui->spin_numValElectrons->setValue(numValElectrons);
     m_ui->edit_kpoints->setText(kPoints);
     m_ui->edit_projections->setText(projections);
+    m_ui->cb_displayTotalDOS->setChecked(displayTotalDOS);
     m_ui->cb_displayData->setChecked(displayDOSData);
     m_ui->cb_useSmoothing->setChecked(useSmoothing);
     m_ui->spin_energyStep->setValue(stepE);
@@ -267,6 +269,7 @@ namespace Avogadro {
     kPoints = lines.join("\n");
     titles = tmpTitles;
     projections = projList.join("\n");
+    displayTotalDOS = m_ui->cb_displayTotalDOS->isChecked();
     displayDOSData = m_ui->cb_displayData->isChecked();
     useSmoothing = m_ui->cb_useSmoothing->isChecked();
     if (useSmoothing) {
