@@ -1152,6 +1152,8 @@ namespace Avogadro
       legendStr += "Total: Red\n";
 
     for (size_t i = 0; i < m_projDOSTitles.size(); ++i) {
+      if (m_projDOSTitles[i].trimmed().isEmpty())
+        m_projDOSTitles[i] = "Unnamed";
       legendStr += m_projDOSTitles[i] + ": " + colorName(i) + "\n";
     }
 
