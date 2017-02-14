@@ -41,7 +41,7 @@
 
 #define INCREASE_RATE 2.0
 #define REDUCE_RATE 0.95
-
+#define NUM_ATTEMPT 100
 
 static Cell * trim_cell(int * mapping_table,
 			SPGCONST double trimmed_lattice[3][3],
@@ -129,7 +129,7 @@ void cel_set_cell(Cell * cell,
   mat_copy_matrix_d3(cell->lattice, lattice);
   for (i = 0; i < cell->size; i++) {
     for (j = 0; j < 3; j++) {
-      cell->position[i][j] = position[i][j];
+      cell->position[i][j] = position[i][j] - mat_Nint(position[i][j]);
     }
     cell->types[i] = types[i];
   }
@@ -172,6 +172,46 @@ int cel_is_overlap(const double a[3],
   } else {
     return 0;
   }
+}
+
+/* 1: At least one overlap of a pair of atoms was found. */
+/* 0: No overlap of atoms was found. */
+int cel_any_overlap(SPGCONST Cell * cell,
+		    const double symprec) {
+  int i, j;
+
+  for (i = 0; i < cell->size; i++) {
+    for (j = i + 1; j < cell->size; j++) {
+      if (cel_is_overlap(cell->position[i],
+			 cell->position[j],
+			 cell->lattice,
+			 symprec)) {
+	return 1;
+      }
+    }
+  }
+  return 0;
+}
+
+/* 1: At least one overlap of a pair of atoms with same type was found. */
+/* 0: No overlap of atoms was found. */
+int cel_any_overlap_with_same_type(SPGCONST Cell * cell,
+				   const double symprec) {
+  int i, j;
+
+  for (i = 0; i < cell->size; i++) {
+    for (j = i + 1; j < cell->size; j++) {
+      if (cell->types[i] == cell->types[j]) {
+	if (cel_is_overlap(cell->position[i],
+			   cell->position[j],
+			   cell->lattice,
+			   symprec)) {
+	  return 1;
+	}
+      }
+    }
+  }
+  return 0;
 }
 
 Cell * cel_trim_cell(int * mapping_table,
@@ -354,7 +394,7 @@ static int * get_overlap_table(const VecDBL * position,
     return NULL;
   }
 
-  for (attempt = 0; attempt < 100; attempt++) {
+  for (attempt = 0; attempt < NUM_ATTEMPT; attempt++) {
     for (i = 0; i < cell_size; i++) {
       overlap_table[i] = i;
       for (j = 0; j < cell_size; j++) {
@@ -397,6 +437,7 @@ static int * get_overlap_table(const VecDBL * position,
       if (num_overlap > ratio) {
 	trim_tolerance *= REDUCE_RATE;
 	warning_print("spglib: Reduce tolerance to %f ", trim_tolerance);
+	warning_print("(%d) ", attempt);
 	warning_print("(line %d, %s).\n", __LINE__, __FILE__);
 	goto cont;
       }

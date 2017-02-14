@@ -1993,7 +1993,7 @@ namespace Avogadro
     // fix coordinates
     // Apply COB matrix:
     Eigen::Matrix3d invCob;
-    cob.computeInverse(&invCob);
+    invCob = cob.inverse();
     for (QList<Eigen::Vector3d>::iterator
            it = fcoords.begin(),
            it_end = fcoords.end();
@@ -2196,7 +2196,8 @@ namespace Avogadro
     CE_CACTION_ASSERT(PrimitiveReduceIndex);
 
     // PrimitiveReduceStandardIndex,
-    a = new QAction(tr("Reduce Cell (&Primitive and Standardize)"), this);
+    a = new QAction(tr("Reduce Cell (&Primitive Reduce and Standardize)"),
+                    this);
     a->setData(++counter);
     m_actions.append(a);
     CE_CACTION_DEBUG(PrimitiveReduceStandardIndex);
