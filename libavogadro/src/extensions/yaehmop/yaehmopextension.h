@@ -110,6 +110,7 @@ namespace Avogadro {
     // This is just the Fermi level the user sets in the band dialog
     double m_fermi;
     bool m_zeroFermi;
+    unsigned short m_numDimensions;
 
     QList<QAction *> m_actions;
     Molecule *m_molecule;

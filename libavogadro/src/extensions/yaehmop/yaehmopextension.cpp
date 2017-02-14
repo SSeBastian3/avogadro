@@ -74,7 +74,8 @@ namespace Avogadro
       m_maxY(0.0),
       m_plotFermi(false),
       m_fermi(0.0),
-      m_zeroFermi(false)
+      m_zeroFermi(false),
+      m_numDimensions(3)
   {
     QAction *action = new QAction( this );
     action->setSeparator(true);
@@ -166,6 +167,7 @@ namespace Avogadro
     settings.setValue("minY", m_minY);
     settings.setValue("maxY", m_maxY);
     settings.setValue("zeroFermi", m_zeroFermi);
+    settings.setValue("numDimensions", m_numDimensions);
     settings.endGroup();
 
     settings.beginGroup("bandStructure");
@@ -197,6 +199,7 @@ namespace Avogadro
     m_minY = settings.value("minY", m_minY).toDouble();
     m_maxY = settings.value("maxY", m_minY).toDouble();
     m_zeroFermi = settings.value("zeroFermi", m_zeroFermi).toBool();
+    m_numDimensions = settings.value("numDimensions", m_numDimensions).toUInt();
     settings.endGroup();
 
     settings.beginGroup("bandStructure");
@@ -420,7 +423,11 @@ namespace Avogadro
     if (m_displayData) {
       QString bandDataStr;
 
-      // Add in special k point info first
+      // Show number of dimensions first
+      bandDataStr += QString("# Number of dimensions: ") +
+                     QString::number(m_numDimensions) + "\n";
+
+      // Add in special k point info
       bandDataStr += "# Special k points\n";
       bandDataStr += "# <symbol> <x> <y> <z> <k space distance (x)>\n";
 
@@ -648,7 +655,11 @@ namespace Avogadro
     if (m_displayData) {
       QString DOSDataStr;
 
-      // Let's print the fermi energy first
+      // Show number of dimensions first
+      DOSDataStr += QString("# Number of dimensions: ") +
+                    QString::number(m_numDimensions) + "\n";
+
+      // Let's print the fermi energy
       if (fermiFound)
         DOSDataStr += QString("# Unadjusted Fermi level: ") +
                       QString::number(unadjustedFermi) + "\n";
@@ -1060,7 +1071,11 @@ namespace Avogadro
     if (m_displayData) {
       QString DOSDataStr;
 
-      // Let's print the fermi energy first
+      // Show number of dimensions first
+      DOSDataStr += QString("# Number of dimensions: ") +
+                    QString::number(m_numDimensions) + "\n";
+
+      // Let's print the fermi energy
       if (fermiFound)
         DOSDataStr += QString("# Unadjusted Fermi level: ") +
                       QString::number(unadjustedFermi) + "\n";
@@ -1195,7 +1210,7 @@ namespace Avogadro
     YaehmopBandDialog d;
     if (!d.getKPointInfo(m_molecule, m_bandNumKPoints, specialKPointString,
                          m_displayData, m_limitY, m_minY, m_maxY, m_plotFermi,
-                         m_fermi, m_zeroFermi))
+                         m_fermi, m_zeroFermi, m_numDimensions))
       return "";
 
     // Proceed with the function
@@ -1252,7 +1267,7 @@ namespace Avogadro
     if (!d.getNumValAndKPoints(this, numValElectrons, numKPoints,
                                tempDOSKPoints, m_displayData, m_useSmoothing,
                                m_eStep, m_broadening, m_limitY,
-                               m_minY, m_maxY, m_zeroFermi)) {
+                               m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
       return "";
     }
 
@@ -1317,7 +1332,7 @@ namespace Avogadro
                                tempDOSKPoints, m_projDOSTitles, projections,
                                m_pdosDisplayTotalDOS, m_displayData,
                                m_useSmoothing, m_eStep, m_broadening, m_limitY,
-                               m_minY, m_maxY, m_zeroFermi)) {
+                               m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
       return "";
     }
 
@@ -1411,7 +1426,7 @@ namespace Avogadro
     // For Windows, assume yaehmop is in the same directory as avogadro
     QString program = "yaehmop";
 #else
-    // For Linux, assume yaehmop is int he same directory as well.
+    // For Linux, assume yaehmop is in the same directory as well.
     // The following format is needed for packages
     QString program = QCoreApplication::applicationDirPath() + "/yaehmop";
 #endif
@@ -1495,8 +1510,9 @@ namespace Avogadro
     QString input;
     input += "Geometry\n"; // Begin geometry section
     size_t numAtoms = atoms.size();
-    // Num atoms plus 4 dummies -- dummies are for defining the lattice
-    input += (QString::number(numAtoms + 4) + QString("\n"));
+    // Num atoms plus (numDimensions + 1) dummies.
+    // Dummies are for defining the lattice
+    input += (QString::number(numAtoms + m_numDimensions + 1) + QString("\n"));
 
     // Now loop through atom positions and add them
     for (size_t i = 0; i < numAtoms; ++i) {
@@ -1523,7 +1539,7 @@ namespace Avogadro
     }
 
     // Add the dummy atoms - these tell the program where the lattice is
-    for (size_t i = 0; i < 4; ++i) {
+    for (size_t i = 0; i <= m_numDimensions; ++i) {
       input += (QString::number(numAtoms + i + 1) + " ");
       // Symbol for dummy atoms
       input += "& ";
@@ -1555,16 +1571,16 @@ namespace Avogadro
 
     // Lattice section to define the lattice
     input += "lattice\n";
-    input += "3\n"; // We are using 3 dimensions
+    input += QString::number(m_numDimensions) + "\n";
     // Add numbers of overlaps
-    for (size_t i = 0; i < 3; ++i)
+    for (size_t i = 0; i < m_numDimensions; ++i)
       input += (QString::number(overlaps[i]) + " ");
     input += "\n";
     // If we have "4 5" here, that means the vector is defined
     // from atom 4 to atom 5. We use dummy atoms for this. The first dummy
     // atom (numAtoms + 1) is always at the origin, and the other dummy atoms
     // are at the ends of the a, b, and c axes.
-    for (size_t i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < m_numDimensions; ++i) {
       input += (QString::number(numAtoms + 1) + " " +
                 QString::number(numAtoms + i + 2) + "\n");
     }

@@ -14,6 +14,13 @@
    <string>Yaehmop Projected DOS</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="9" column="1">
+    <widget class="QCheckBox" name="cb_displayTotalDOS">
+     <property name="text">
+      <string>Display Total DOS?</string>
+     </property>
+    </widget>
+   </item>
    <item row="6" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
@@ -166,7 +173,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="19" column="0" colspan="2">
+   <item row="20" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -264,10 +271,23 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="9" column="1">
-    <widget class="QCheckBox" name="cb_displayTotalDOS">
+   <item row="19" column="0">
+    <widget class="QCheckBox" name="cb_1DSystem">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If this box is checked, periodicity will only be along the A lattice vector.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
-      <string>Display Total DOS?</string>
+      <string>1-D system?</string>
+     </property>
+    </widget>
+   </item>
+   <item row="19" column="1">
+    <widget class="QCheckBox" name="cb_2DSystem">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If this box is checked, periodicity will only be along the A and B lattice vectors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>2-D system?</string>
      </property>
     </widget>
    </item>
@@ -380,6 +400,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>421</x>
      <y>345</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_1DSystem</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cb_2DSystem</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>144</x>
+     <y>485</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>485</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_2DSystem</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cb_1DSystem</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>421</x>
+     <y>485</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>144</x>
+     <y>485</y>
     </hint>
    </hints>
   </connection>

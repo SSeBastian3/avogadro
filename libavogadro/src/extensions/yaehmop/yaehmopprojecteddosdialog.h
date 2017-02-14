@@ -68,6 +68,11 @@ public:
   // @param minY MinY if we are limiting the y-range.
   // @param maxY MaxY if we are limiting the y-range.
   // @param zeroFermi Whether or not to zero the Fermi level.
+  // @param numDimensions The number of dimensions. If this is 1, then
+  //                      periodicity is only along the A vector. If this
+  //                      is 2, then periodicity is along both the A and
+  //                      the B vectors. If it is 3, then periodicity is
+  //                      along all three vectors.
   // @return True if the parse was successful and the user did not cancel.
   //         False otherwise.
 
@@ -78,7 +83,8 @@ public:
                            bool& displayDOSData,
                            bool& useSmoothing, double& stepE,
                            double& broadening, bool& limitY,
-                           double& minY, double& maxY, bool& zeroFermi);
+                           double& minY, double& maxY, bool& zeroFermi,
+                           unsigned short& numDimensions);
 
   void displayInvalidKPointsFormatMessage();
   void displayInvalidProjectionsFormatMessage();
