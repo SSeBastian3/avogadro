@@ -44,10 +44,10 @@ bool YaehmopOut::readBandData(const QString& data, QVector<band>& bands,
 
   QStringList lines = data.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
 
-  while (lines.size() != 0 && !lines[0].contains("#BAND_DATA"))
+  while (!lines.isEmpty() && !lines[0].contains("#BAND_DATA"))
     lines.removeFirst();
 
-  if (lines.size() == 0)
+  if (lines.isEmpty())
     return printAndReturnFalse("Band Data not found in readBandData()!");
 
   // These get printed from the status file and are not needed...
@@ -176,8 +176,11 @@ bool YaehmopOut::readTotalDOSData(const QString& data,
 
   QStringList lines = data.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
 
-  while (!lines[0].contains("TOTAL DENSITY OF STATES"))
+  while (!lines.isEmpty() && !lines[0].contains("TOTAL DENSITY OF STATES"))
     lines.removeFirst();
+
+  if (lines.isEmpty())
+    return printAndReturnFalse("DOS Data not found in readTotalDOSData!");
 
   size_t ind = 1;
 
@@ -217,3 +220,80 @@ bool YaehmopOut::readTotalDOSData(const QString& data,
   // We made it!
   return true;
 }
+
+// FIXME: make this work....
+bool YaehmopOut::readProjDOSData(const QString& data,
+                                 QVector<QVector<double> >& densities,
+                                 QVector<QVector<double> >& energies)
+{
+  densities.clear();
+  energies.clear();
+
+  QStringList lines = data.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
+
+  while (!lines.isEmpty() &&
+         !lines[0].contains("PROJECTED DENSITY OF STATES")) {
+    lines.removeFirst();
+  }
+
+  if (lines.isEmpty()) {
+    return printAndReturnFalse("Projected Data not found in "
+                               "readProjDOSData!");
+  }
+
+  while (!lines.isEmpty()) {
+    QVector<double> tmpDensities, tmpEnergies;
+    size_t ind = 1;
+
+    // The next line should contain <num> states are present
+    if (!lines[ind].contains("states are present"))
+      return printAndReturnFalse("Number of states present is missing!");
+
+    size_t numDensities = lines[ind].toInt();
+    tmpDensities.reserve(numDensities);
+    tmpEnergies.reserve(numDensities);
+
+    // There is an extra line after this one with the atom info
+    ++ind;
+    ++ind;
+    // Next line should contain BEGIN CURVE
+    if (!lines[ind].contains("BEGIN CURVE"))
+      return printAndReturnFalse("BEGIN CURVE is missing!");
+
+    ++ind;
+    while (!lines[ind].contains("END CURVE")) {
+      QStringList splitLine = lines[ind].split(" ", QString::SkipEmptyParts);
+      if (splitLine.size() != 2)
+        return printAndReturnFalse("Projected DOS data is incomplete!");
+
+      bool ok = true;
+      double density = splitLine[0].toFloat(&ok);
+      if (!ok)
+        return printAndReturnFalse("Invalid number in projected DOS data!");
+
+      double energy = splitLine[1].toFloat(&ok);
+      if (!ok)
+        return printAndReturnFalse("Invalid number in projected DOS data!");
+
+      tmpDensities.append(density);
+      tmpEnergies.append(energy);
+      ++ind;
+    }
+    densities.append(tmpDensities);
+    energies.append(tmpEnergies);
+    // Scroll past this "PROJECTED DENSITY OF STATES" line
+    if (!lines.isEmpty() &&
+        lines[0].contains("PROJECTED DENSITY OF STATES")) {
+      lines.removeFirst();
+    }
+    // Get to the next set of projected DOS data if it exists
+    while (!lines.isEmpty() &&
+           !lines[0].contains("PROJECTED DENSITY OF STATES")) {
+      lines.removeFirst();
+    }
+  }
+
+  // We made it!
+  return true;
+}
+

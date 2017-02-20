@@ -41,7 +41,8 @@ namespace Avogadro {
                                         bool& displayBandData, bool& limitY,
                                         double& minY, double& maxY,
                                         bool& plotFermi, double& fermi,
-                                        bool& zeroFermi)
+                                        bool& zeroFermi,
+                                        unsigned short& numDimensions)
   {
     m_ui->spin_numKPoints->setValue(numKPoints);
     m_ui->cb_displayBandData->setChecked(displayBandData);
@@ -51,6 +52,10 @@ namespace Avogadro {
     m_ui->cb_plotFermi->setChecked(plotFermi);
     m_ui->spin_fermi->setValue(fermi);
     m_ui->cb_zeroFermi->setChecked(zeroFermi);
+    if (numDimensions == 1)
+      m_ui->cb_1DSystem->setChecked(true);
+    if (numDimensions == 2)
+      m_ui->cb_2DSystem->setChecked(true);
 
     kPointInfo = "";
     QString specialKPoints = SpecialKPoints::getSpecialKPoints(mol);
@@ -101,6 +106,13 @@ namespace Avogadro {
     plotFermi = m_ui->cb_plotFermi->isChecked();
     fermi = m_ui->spin_fermi->value();
     zeroFermi = (plotFermi ? m_ui->cb_zeroFermi->isChecked() : false);
+    if (m_ui->cb_1DSystem->isChecked())
+      numDimensions = 1;
+    else if (m_ui->cb_2DSystem->isChecked())
+      numDimensions = 2;
+    else
+      numDimensions = 3;
+
     return true;
   }
 

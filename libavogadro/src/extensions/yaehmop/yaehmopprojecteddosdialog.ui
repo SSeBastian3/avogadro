@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Avogadro::YaehmopTotalDOSDialog</class>
- <widget class="QDialog" name="Avogadro::YaehmopTotalDOSDialog">
+ <class>Avogadro::YaehmopProjectedDOSDialog</class>
+ <widget class="QDialog" name="Avogadro::YaehmopProjectedDOSDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>566</width>
-    <height>429</height>
+    <height>539</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Yaehmop Total DOS</string>
+   <string>Yaehmop Projected DOS</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="9" column="1">
+    <widget class="QCheckBox" name="cb_displayTotalDOS">
+     <property name="text">
+      <string>Display Total DOS?</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Projections</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="layoutDirection">
@@ -34,7 +48,7 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="13" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Energy step size:</string>
@@ -80,7 +94,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
+   <item row="14" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Gaussian broadening:</string>
@@ -90,7 +104,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="11" column="1">
     <widget class="QCheckBox" name="cb_useSmoothing">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to use Gaussian smoothing to smooth the data.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Smoothing is typically performed for density of states data.&lt;/p&gt;&lt;p&gt;Default: on&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -103,7 +117,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
+   <item row="13" column="1">
     <widget class="QDoubleSpinBox" name="spin_energyStep">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The energy step size for Gaussian smoothing. &lt;/p&gt;&lt;p&gt;Default: 0.1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -134,7 +148,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="11" column="1">
+   <item row="14" column="1">
     <widget class="QDoubleSpinBox" name="spin_broadening">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gaussian broadening for Gaussian smoothing. The Gaussian broadening is the standard deviation.&lt;/p&gt;&lt;p&gt;Default: 0.1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -159,7 +173,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="17" column="0" colspan="2">
+   <item row="20" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -169,7 +183,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="15" column="1">
+   <item row="18" column="1">
     <widget class="QDoubleSpinBox" name="spin_maxY">
      <property name="enabled">
       <bool>false</bool>
@@ -191,7 +205,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="10" column="1">
     <widget class="QCheckBox" name="cb_displayData">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to display the density of states data in a&lt;/p&gt;&lt;p&gt;pop-up box after the calculation finishes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Data may be copied and pasted into a separate file.&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -201,7 +215,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="15" column="0">
+   <item row="18" column="0">
     <widget class="QDoubleSpinBox" name="spin_minY">
      <property name="enabled">
       <bool>false</bool>
@@ -223,7 +237,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="8" column="1">
     <widget class="QCheckBox" name="cb_zeroFermi">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Subtracts the Fermi energy from all other energies so that the Fermi energy is set to be zero.&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -233,7 +247,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="12" column="1">
+   <item row="15" column="1">
     <widget class="QCheckBox" name="cb_limitY">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Limit the y-range?&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -243,7 +257,21 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="16" column="0">
+   <item row="7" column="0" colspan="2">
+    <widget class="QTextEdit" name="edit_projections">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Projections should be entered as follows:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;# Projection name&lt;/p&gt;&lt;p&gt;&amp;lt;type&amp;gt; &amp;lt;contrib1&amp;gt; &amp;lt;weight1&amp;gt;, &amp;lt;contrib2&amp;gt; &amp;lt;weight2&amp;gt;, ...&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;where &amp;lt;type&amp;gt; is Atom, Orbital, or FMO.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;By default, the projections generated here will be one for every different atom type. You may change it as you like. See the yaehmop manual for more details.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you wish to use more than one line for a single projection, add a '\' to the end.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;lt;type&amp;gt; &amp;lt;contrib1&amp;gt; &amp;lt;weight1&amp;gt;, &amp;lt;contrib2&amp;gt; &amp;lt;weight2&amp;gt; ...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="19" column="0">
     <widget class="QCheckBox" name="cb_1DSystem">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If this box is checked, periodicity will only be along the A lattice vector.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -253,7 +281,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="16" column="1">
+   <item row="19" column="1">
     <widget class="QCheckBox" name="cb_2DSystem">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If this box is checked, periodicity will only be along the A and B lattice vectors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -282,7 +310,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Avogadro::YaehmopTotalDOSDialog</receiver>
+   <receiver>Avogadro::YaehmopProjectedDOSDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -298,7 +326,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Avogadro::YaehmopTotalDOSDialog</receiver>
+   <receiver>Avogadro::YaehmopProjectedDOSDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -383,11 +411,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>144</x>
-     <y>375</y>
+     <y>485</y>
     </hint>
     <hint type="destinationlabel">
      <x>421</x>
-     <y>375</y>
+     <y>485</y>
     </hint>
    </hints>
   </connection>
@@ -399,11 +427,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>421</x>
-     <y>375</y>
+     <y>485</y>
     </hint>
     <hint type="destinationlabel">
      <x>144</x>
-     <y>375</y>
+     <y>485</y>
     </hint>
    </hints>
   </connection>

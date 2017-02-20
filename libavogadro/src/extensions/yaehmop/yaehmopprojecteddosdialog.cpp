@@ -14,9 +14,9 @@
 
 ******************************************************************************/
 
-#include "yaehmoptotaldosdialog.h"
+#include "yaehmopprojecteddosdialog.h"
 #include "yaehmopextension.h"
-#include "ui_yaehmoptotaldosdialog.h"
+#include "ui_yaehmopprojecteddosdialog.h"
 
 #include <QDebug>
 
@@ -24,22 +24,25 @@
 
 namespace Avogadro {
 
-  YaehmopTotalDOSDialog::YaehmopTotalDOSDialog(QWidget *p) :
+  YaehmopProjectedDOSDialog::YaehmopProjectedDOSDialog(QWidget *p) :
     QDialog(p),
-    m_ui(new Ui::YaehmopTotalDOSDialog)
+    m_ui(new Ui::YaehmopProjectedDOSDialog)
   {
     m_ui->setupUi(this);
   }
 
-  YaehmopTotalDOSDialog::~YaehmopTotalDOSDialog()
+  YaehmopProjectedDOSDialog::~YaehmopProjectedDOSDialog()
   {
     delete m_ui;
   }
 
-  bool YaehmopTotalDOSDialog::getNumValAndKPoints(YaehmopExtension* yext,
+  bool YaehmopProjectedDOSDialog::getNumValAndKPoints(YaehmopExtension* yext,
                                                   size_t& numValElectrons,
                                                   size_t& numKPoints,
                                                   QString& kPoints,
+                                                  QStringList& titles,
+                                                  QString& projections,
+                                                  bool& displayTotalDOS,
                                                   bool& displayDOSData,
                                                   bool& useSmoothing,
                                                   double& stepE,
@@ -49,9 +52,12 @@ namespace Avogadro {
                                                   bool& zeroFermi,
                                                   unsigned short& numDimensions)
   {
-    m_ui->spin_numValElectrons->setValue(numValElectrons);
     numKPoints = 0;
+    titles.clear();
+    m_ui->spin_numValElectrons->setValue(numValElectrons);
     m_ui->edit_kpoints->setText(kPoints);
+    m_ui->edit_projections->setText(projections);
+    m_ui->cb_displayTotalDOS->setChecked(displayTotalDOS);
     m_ui->cb_displayData->setChecked(displayDOSData);
     m_ui->cb_useSmoothing->setChecked(useSmoothing);
     m_ui->spin_energyStep->setValue(stepE);
@@ -62,7 +68,7 @@ namespace Avogadro {
     m_ui->cb_zeroFermi->setChecked(zeroFermi);
     if (numDimensions == 1)
       m_ui->cb_1DSystem->setChecked(true);
-    else if (numDimensions == 2)
+    if (numDimensions == 2)
       m_ui->cb_2DSystem->setChecked(true);
 
     if (this->exec() == QDialog::Rejected)
@@ -70,12 +76,13 @@ namespace Avogadro {
 
     size_t numValElectronsVal = m_ui->spin_numValElectrons->value();
     size_t numKPointsVal = 0;
-    QString text = m_ui->edit_kpoints->toPlainText();
+    QString kpointsText = m_ui->edit_kpoints->toPlainText();
 
     // Let's make sure the input is valid. Split it into lines first
-    QStringList lines = text.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
+    QStringList lines = kpointsText.split(QRegExp("[\r\n]"),
+                                          QString::SkipEmptyParts);
 
-    // Let's go through each line
+    // Let's go through each line in the k points
     for (size_t i = 0; i < lines.size(); ++i) {
       // Split the line by spaces
       QStringList splitLine = lines[i].split(" ", QString::SkipEmptyParts);
@@ -89,7 +96,7 @@ namespace Avogadro {
         splitLine = lines[i].split("x", QString::SkipEmptyParts);
         // It must be of size 3
         if (splitLine.size() != 3) {
-          displayInvalidFormatMessage();
+          displayInvalidKPointsFormatMessage();
           return false;
         }
 
@@ -99,7 +106,7 @@ namespace Avogadro {
         for (size_t j = 0; j < 3; ++j) {
           grid[j] = splitLine[j].toInt(&ok);
           if (!ok) {
-            displayInvalidFormatMessage();
+            displayInvalidKPointsFormatMessage();
             return false;
           }
         }
@@ -135,7 +142,7 @@ namespace Avogadro {
       else {
         // Otherwise, the split line must be of size 4
         if (splitLine.size() != 4) {
-          displayInvalidFormatMessage();
+          displayInvalidKPointsFormatMessage();
           return false;
         }
 
@@ -146,14 +153,14 @@ namespace Avogadro {
           if (j < 3) {
             splitLine[j].toFloat(&ok);
             if (!ok) {
-              displayInvalidFormatMessage();
+              displayInvalidKPointsFormatMessage();
               return false;
             }
           }
           else {
             splitLine[j].toInt(&ok);
             if (!ok) {
-              displayInvalidFormatMessage();
+              displayInvalidKPointsFormatMessage();
               return false;
             }
           }
@@ -164,10 +171,110 @@ namespace Avogadro {
       }
     }
 
+    QString projectionsText = m_ui->edit_projections->toPlainText();
+    QStringList pLines = projectionsText.split(QRegExp("[\r\n]"),
+                                               QString::SkipEmptyParts);
+    QStringList tmpTitles, projList;
+    // Store whether or not we have a title for every projection
+    bool titleFound = false;
+    // Now, let's go through each line in the projections
+    for (size_t i = 0; i < pLines.size(); ++i) {
+      // If it is empty, skip over it
+      if (pLines[i].trimmed().size() == 0)
+        continue;
+      // If it starts with a '#' or ';', store it as the title
+      if (pLines[i].trimmed()[0] == '#' || pLines[i].trimmed()[0] == ';') {
+        pLines[i].remove('#');
+        pLines[i].remove(';');
+        // If we already found a title, print a warning and just use the second
+        // title.
+        if (titleFound && tmpTitles.size() != 0) {
+          qDebug() << "Warning: two titles were found in a row.";
+          qDebug() << tmpTitles[tmpTitles.size() - 1]
+                   << " will be replaced with "
+                   << pLines[i].trimmed();
+          tmpTitles[tmpTitles.size() - 1] = pLines[i].trimmed();
+        }
+        else {
+          tmpTitles.append(pLines[i].trimmed());
+          titleFound = true;
+        }
+        continue;
+      }
+
+      // If we made it here, it must be a projection line
+      QString type = pLines[i].split(" ", QString::SkipEmptyParts)[0].trimmed();
+      type = type.toLower(); // FIXME: THIS IS NOT WORKING - to lowercase
+
+      // 'type' must be 'atom', 'orbital', or 'FMO'
+      if (type != "atom" && type != "orbital" && type != "fmo") {
+        qDebug() << "Error: invalid type was entered in edit_projections:"
+                 << type << "\nAborting.";
+        displayInvalidProjectionsFormatMessage();
+        return false;
+      }
+
+      // Split all the types by commas
+      QStringList splitLine = pLines[i].split(",", QString::SkipEmptyParts);
+
+      // Remove the type from the first item
+      splitLine[0].remove(type);
+
+      // The split items should now be: contributor (int) weight (double)
+      for (size_t j = 0; j < splitLine.size(); ++j) {
+        QStringList spaceSplit = splitLine[j].split(" ",
+                                                    QString::SkipEmptyParts);
+        // This should be of size 2, no more, no less
+        if (spaceSplit.size() != 2) {
+          qDebug() << "Error: invalid projection was entered in"
+                   << "edit_projections:" << pLines[i] << "\nAborting.";
+          displayInvalidProjectionsFormatMessage();
+          return false;
+        }
+
+        // The first item should be an int, the second item should be a double
+        bool ok;
+        spaceSplit[0].toInt(&ok);
+        if (!ok) {
+          qDebug() << "Error: invalid projection was entered in"
+                   << "edit_projections:" << splitLine[i] << "\nAborting.";
+          displayInvalidProjectionsFormatMessage();
+        }
+        spaceSplit[1].toFloat(&ok);
+        if (!ok) {
+          qDebug() << "Error: invalid projection was entered in"
+                   << "edit_projections:" << splitLine[i] << "\nAborting.";
+          displayInvalidProjectionsFormatMessage();
+        }
+      }
+
+      // If we didn't find a title, append an empty space
+      if (!titleFound)
+        tmpTitles.append(" ");
+
+      titleFound = false;
+      projList.append(pLines[i]);
+    }
+
+    // If the projList is of size 0, return a failure
+    if (projList.size() == 0) {
+        qDebug() << "Error: projections list is empty!"
+                 << "\nAborting.";
+        displayInvalidProjectionsFormatMessage();
+        return false;
+    }
+
+    // The size of the list is the number of projections
+    projList.prepend(QString::number(projList.size()));
+    projList.prepend("projections");
+
     // If we made it here, we are good!
     numValElectrons = numValElectronsVal;
     numKPoints = numKPointsVal;
     kPoints = lines.join("\n");
+    titles = tmpTitles;
+    projections = projList.join("\n");
+    displayTotalDOS = m_ui->cb_displayTotalDOS->isChecked();
     displayDOSData = m_ui->cb_displayData->isChecked();
     useSmoothing = m_ui->cb_useSmoothing->isChecked();
     if (useSmoothing) {
@@ -189,18 +296,29 @@ namespace Avogadro {
     else
       numDimensions = 3;
 
-    // We have to set this in here so we can keep the "text"
-    yext->setDOSKPoints(text);
+    // We have to set this in here so we can keep the "kpointsText"
+    yext->setDOSKPoints(kpointsText);
 
     return true;
   }
 
-  void YaehmopTotalDOSDialog::displayInvalidFormatMessage()
+  void YaehmopProjectedDOSDialog::displayInvalidKPointsFormatMessage()
   {
     QMessageBox::critical
       (this,
        tr("Cannot Parse Text"),
        tr("There was an error parsing the k points. "
+          "Please check your input and try again.\n\n"));
+    reject();
+    close();
+  }
+
+  void YaehmopProjectedDOSDialog::displayInvalidProjectionsFormatMessage()
+  {
+    QMessageBox::critical
+      (this,
+       tr("Cannot Parse Text"),
+       tr("There was an error parsing the projections. "
           "Please check your input and try again.\n\n"));
     reject();
     close();

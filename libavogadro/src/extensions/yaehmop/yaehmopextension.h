@@ -19,7 +19,7 @@
 
 #include <avogadro/extension.h>
 
-#include <QMutex>
+#include <QStringList>
 
 namespace Avogadro {
 
@@ -60,7 +60,7 @@ namespace Avogadro {
   public slots:
     void calculateBandStructure();
     void calculateTotalDOS();
-    void plotPartialDOS();
+    void calculateProjectedDOS();
     void setParametersFile();
     void executeCustomInput() const;
 
@@ -70,6 +70,9 @@ namespace Avogadro {
 
     // @return The total DOS calculation input.
     QString createYaehmopTotalDOSInput();
+
+    // @return The projected DOS calculation input.
+    QString createYaehmopProjectedDOSInput();
 
     QString createGeometryAndLatticeInput() const;
 
@@ -94,9 +97,11 @@ namespace Avogadro {
 
     size_t m_bandNumKPoints;
     QString m_dosKPoints;
+    QStringList m_projDOSTitles;
     bool m_useSmoothing;
     double m_eStep;
     double m_broadening;
+    bool m_pdosDisplayTotalDOS;
     bool m_displayData;
     bool m_limitY;
     double m_minY;
@@ -105,6 +110,7 @@ namespace Avogadro {
     // This is just the Fermi level the user sets in the band dialog
     double m_fermi;
     bool m_zeroFermi;
+    unsigned short m_numDimensions;
 
     QList<QAction *> m_actions;
     Molecule *m_molecule;

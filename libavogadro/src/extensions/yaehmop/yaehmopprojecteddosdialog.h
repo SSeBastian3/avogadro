@@ -14,8 +14,8 @@
 
 ******************************************************************************/
 
-#ifndef AVOGADRO_YAEHMOPTOTALDOSDIALOG_H
-#define AVOGADRO_YAEHMOPTOTALDOSDIALOG_H
+#ifndef AVOGADRO_YAEHMOPPROJECTEDDOSDIALOG_H
+#define AVOGADRO_YAEHMOPPROJECTEDDOSDIALOG_H
 
 #include <QDialog>
 
@@ -24,20 +24,20 @@ namespace Avogadro {
 class YaehmopExtension;
 
 namespace Ui {
-class YaehmopTotalDOSDialog;
+class YaehmopProjectedDOSDialog;
 }
 
 /**
- * @brief The YaehmopTotalDOSDialog class provides a dialog for setting
+ * @brief The YaehmopProjectedDOSDialog class provides a dialog for setting
  * k-point options for plotting band structures with Yaehmop.
  */
 
-class YaehmopTotalDOSDialog : public QDialog
+class YaehmopProjectedDOSDialog : public QDialog
 {
   Q_OBJECT
 public:
-  YaehmopTotalDOSDialog(QWidget *p = 0);
-  ~YaehmopTotalDOSDialog();
+  YaehmopProjectedDOSDialog(QWidget *p = 0);
+  ~YaehmopProjectedDOSDialog();
 
   // Returns true if it was able to parse the given input successfully and
   // if the user did not cancel. The string should already be ready to be
@@ -50,6 +50,12 @@ public:
   // @param kpoints Will be set to the input string (x, y, z, weight for each
   //                k points) if it succeeds. It will be empty if the parsing
   //                does not succeed.
+  // @param title The titles of the different projections that the user
+  //              chooses. It will be left blank if no title is given.
+  // @param projections The projections information exactly as it is to be
+  //                    entered into YAeHMOP.
+  // @param displayTotalDOS Whether or not to display the Total DOS in
+  //                        the plot.
   // @param displayDOSData This will be set to true if we are to
   //                       display the DOS data for the user.
   // @param useSmoothing This will be set to true if we are to
@@ -72,17 +78,20 @@ public:
 
   bool getNumValAndKPoints(YaehmopExtension* yext,
                            size_t& numValElectrons, size_t& numKPoints,
-                           QString& kPoints, bool& displayDOSData,
+                           QString& kPoints, QStringList& titles,
+                           QString& projections, bool& displayTotalDOS,
+                           bool& displayDOSData,
                            bool& useSmoothing, double& stepE,
                            double& broadening, bool& limitY,
                            double& minY, double& maxY, bool& zeroFermi,
                            unsigned short& numDimensions);
 
-  void displayInvalidFormatMessage();
+  void displayInvalidKPointsFormatMessage();
+  void displayInvalidProjectionsFormatMessage();
 
 private:
-  Ui::YaehmopTotalDOSDialog *m_ui;
+  Ui::YaehmopProjectedDOSDialog *m_ui;
 };
 
 } // namespace Avogadro
-#endif // AVOGADRO_YAEHMOPTOTALDOSDIALOG_H
+#endif // AVOGADRO_YAEHMOPPROJECTEDDOSDIALOG_H
