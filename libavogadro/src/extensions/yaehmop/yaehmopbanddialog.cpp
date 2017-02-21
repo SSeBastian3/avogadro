@@ -36,13 +36,13 @@ namespace Avogadro {
     delete m_ui;
   }
 
-  bool YaehmopBandDialog::getKPointInfo(Molecule* mol, size_t& numKPoints,
-                                        QString& kPointInfo,
-                                        bool& displayBandData, bool& limitY,
-                                        double& minY, double& maxY,
-                                        bool& plotFermi, double& fermi,
-                                        bool& zeroFermi,
-                                        unsigned short& numDimensions)
+  bool YaehmopBandDialog::getUserOptions(Molecule* mol, size_t& numKPoints,
+                                         QString& kPointInfo,
+                                         bool& displayBandData, bool& limitY,
+                                         double& minY, double& maxY,
+                                         bool& plotFermi, double& fermi,
+                                         bool& zeroFermi,
+                                         unsigned short& numDimensions)
   {
     m_ui->spin_numKPoints->setValue(numKPoints);
     m_ui->cb_displayBandData->setChecked(displayBandData);

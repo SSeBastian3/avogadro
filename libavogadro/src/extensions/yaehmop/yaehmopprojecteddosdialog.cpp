@@ -36,21 +36,21 @@ namespace Avogadro {
     delete m_ui;
   }
 
-  bool YaehmopProjectedDOSDialog::getNumValAndKPoints(YaehmopExtension* yext,
-                                                  size_t& numValElectrons,
-                                                  size_t& numKPoints,
-                                                  QString& kPoints,
-                                                  QStringList& titles,
-                                                  QString& projections,
-                                                  bool& displayTotalDOS,
-                                                  bool& displayDOSData,
-                                                  bool& useSmoothing,
-                                                  double& stepE,
-                                                  double& broadening,
-                                                  bool& limitY,
-                                                  double& minY, double& maxY,
-                                                  bool& zeroFermi,
-                                                  unsigned short& numDimensions)
+  bool YaehmopProjectedDOSDialog::getUserOptions(YaehmopExtension* yext,
+                                                 size_t& numValElectrons,
+                                                 size_t& numKPoints,
+                                                 QString& kPoints,
+                                                 QStringList& titles,
+                                                 QString& projections,
+                                                 bool& displayTotalDOS,
+                                                 bool& displayDOSData,
+                                                 bool& useSmoothing,
+                                                 double& stepE,
+                                                 double& broadening,
+                                                 bool& limitY,
+                                                 double& minY, double& maxY,
+                                                 bool& zeroFermi,
+                                                 unsigned short& numDimensions)
   {
     numKPoints = 0;
     titles.clear();
@@ -204,10 +204,10 @@ namespace Avogadro {
 
       // If we made it here, it must be a projection line
       QString type = pLines[i].split(" ", QString::SkipEmptyParts)[0].trimmed();
-      type = type.toLower(); // FIXME: THIS IS NOT WORKING - to lowercase
 
       // 'type' must be 'atom', 'orbital', or 'FMO'
-      if (type != "atom" && type != "orbital" && type != "fmo") {
+      if (type.toLower() != "atom" && type.toLower() != "orbital" &&
+          type.toLower() != "fmo") {
         qDebug() << "Error: invalid type was entered in edit_projections:"
                  << type << "\nAborting.";
         displayInvalidProjectionsFormatMessage();

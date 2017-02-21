@@ -70,13 +70,13 @@ public:
   // @return True if the parse was successful and the user did not cancel.
   //         False otherwise.
 
-  bool getNumValAndKPoints(YaehmopExtension* yext,
-                           size_t& numValElectrons, size_t& numKPoints,
-                           QString& kPoints, bool& displayDOSData,
-                           bool& useSmoothing, double& stepE,
-                           double& broadening, bool& limitY,
-                           double& minY, double& maxY, bool& zeroFermi,
-                           unsigned short& numDimensions);
+  bool getUserOptions(YaehmopExtension* yext,
+                      size_t& numValElectrons, size_t& numKPoints,
+                      QString& kPoints, bool& displayDOSData,
+                      bool& useSmoothing, double& stepE,
+                      double& broadening, bool& limitY,
+                      double& minY, double& maxY, bool& zeroFermi,
+                      unsigned short& numDimensions);
 
   void displayInvalidFormatMessage();
 

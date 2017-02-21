@@ -63,11 +63,11 @@ public:
   //                      along all three vectors.
   // If the user checks the box to display band data, displayBandData
   // will be set to be true
-  bool getKPointInfo(Molecule* mol, size_t& numKPoints,
-                     QString& kPointInfo, bool& displayBandData,
-                     bool& limitY, double& minY, double& maxY, bool& plotFermi,
-                     double& fermi, bool& zeroFermi,
-                     unsigned short& numDimensions);
+  bool getUserOptions(Molecule* mol, size_t& numKPoints,
+                      QString& kPointInfo, bool& displayBandData,
+                      bool& limitY, double& minY, double& maxY, bool& plotFermi,
+                      double& fermi, bool& zeroFermi,
+                      unsigned short& numDimensions);
 
   void displayInvalidFormatMessage();
 

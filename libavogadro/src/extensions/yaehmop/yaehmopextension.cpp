@@ -1208,9 +1208,9 @@ namespace Avogadro
     // through the rest of the algorithm if they cancel...
     QString specialKPointString;
     YaehmopBandDialog d;
-    if (!d.getKPointInfo(m_molecule, m_bandNumKPoints, specialKPointString,
-                         m_displayData, m_limitY, m_minY, m_maxY, m_plotFermi,
-                         m_fermi, m_zeroFermi, m_numDimensions))
+    if (!d.getUserOptions(m_molecule, m_bandNumKPoints, specialKPointString,
+                          m_displayData, m_limitY, m_minY, m_maxY, m_plotFermi,
+                          m_fermi, m_zeroFermi, m_numDimensions))
       return "";
 
     // Proceed with the function
@@ -1264,10 +1264,10 @@ namespace Avogadro
     size_t numKPoints = 0;
     QString tempDOSKPoints = m_dosKPoints;
     YaehmopTotalDOSDialog d;
-    if (!d.getNumValAndKPoints(this, numValElectrons, numKPoints,
-                               tempDOSKPoints, m_displayData, m_useSmoothing,
-                               m_eStep, m_broadening, m_limitY,
-                               m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
+    if (!d.getUserOptions(this, numValElectrons, numKPoints,
+                          tempDOSKPoints, m_displayData, m_useSmoothing,
+                          m_eStep, m_broadening, m_limitY,
+                          m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
       return "";
     }
 
@@ -1328,11 +1328,11 @@ namespace Avogadro
     QString projections = guessTypedAtomProjections(atomicSymbols);
     QString tempDOSKPoints = m_dosKPoints;
     YaehmopProjectedDOSDialog d;
-    if (!d.getNumValAndKPoints(this, numValElectrons, numKPoints,
-                               tempDOSKPoints, m_projDOSTitles, projections,
-                               m_pdosDisplayTotalDOS, m_displayData,
-                               m_useSmoothing, m_eStep, m_broadening, m_limitY,
-                               m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
+    if (!d.getUserOptions(this, numValElectrons, numKPoints,
+                          tempDOSKPoints, m_projDOSTitles, projections,
+                          m_pdosDisplayTotalDOS, m_displayData,
+                          m_useSmoothing, m_eStep, m_broadening, m_limitY,
+                          m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
       return "";
     }
 
