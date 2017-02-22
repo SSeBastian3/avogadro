@@ -61,6 +61,7 @@ namespace Avogadro {
     void calculateBandStructure();
     void calculateTotalDOS();
     void calculateProjectedDOS();
+    void calculateCOOP();
     void setParametersFile();
     void executeCustomInput() const;
 
@@ -73,6 +74,9 @@ namespace Avogadro {
 
     // @return The projected DOS calculation input.
     QString createYaehmopProjectedDOSInput();
+
+    // @return The COOP calculation input.
+    QString createYaehmopCOOPInput();
 
     QString createGeometryAndLatticeInput() const;
 

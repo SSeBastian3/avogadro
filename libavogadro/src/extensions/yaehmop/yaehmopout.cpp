@@ -221,7 +221,6 @@ bool YaehmopOut::readTotalDOSData(const QString& data,
   return true;
 }
 
-// FIXME: make this work....
 bool YaehmopOut::readProjDOSData(const QString& data,
                                  QVector<QVector<double> >& densities,
                                  QVector<QVector<double> >& energies)
@@ -297,3 +296,92 @@ bool YaehmopOut::readProjDOSData(const QString& data,
   return true;
 }
 
+bool YaehmopOut::readCOOPData(const QString& data,
+                              QStringList& titles,
+                              QVector<QVector<double> >& coops,
+                              QVector<QVector<double> >& energies)
+{
+  coops.clear();
+  energies.clear();
+
+  QStringList lines = data.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
+
+  while (!lines.isEmpty() &&
+         !lines[0]
+           .contains("COOP (Crystal Orbital Overlap Population) results")) {
+    lines.removeFirst();
+  }
+
+  if (lines.isEmpty()) {
+    return printAndReturnFalse("COOP Data not found in readCOOPData!");
+  }
+
+  lines.removeFirst();
+
+  // The next line should contain <num> curves will be generated
+  if (!lines[0].contains("curves will be generated"))
+    return printAndReturnFalse("Number of curves generated is missing!");
+
+  size_t numCoops = lines[0].split(" ", QString::SkipEmptyParts)[0].toInt();
+  size_t numCoopsSoFar = 0;
+
+  while (numCoopsSoFar != numCoops && !lines.isEmpty()) {
+    QVector<double> tmpCoops, tmpEnergies;
+    tmpCoops.reserve(numCoops);
+    tmpEnergies.reserve(numCoops);
+
+    size_t ind = 1;
+
+    // This line should contain title info
+    if (!lines[ind].contains("Contributions to this COOP are:"))
+      return printAndReturnFalse("Contributions to this COOP line is missing!");
+
+    ++ind;
+    QString title;
+
+    while (ind != lines.size() && !lines[ind].contains("BEGIN CURVE")) {
+      title += lines[ind];
+      ++ind;
+    }
+
+    titles.append(title);
+
+    if (ind == lines.size())
+      return printAndReturnFalse("Missing 'BEGIN CURVE' in COOP data!");
+
+    ++ind;
+    while (ind != lines.size() && !lines[ind].contains("END CURVE")) {
+      QStringList splitLine = lines[ind].split(" ", QString::SkipEmptyParts);
+      if (splitLine.size() != 2)
+        return printAndReturnFalse("COOP data is incomplete!");
+
+      bool ok = true;
+      double coop = splitLine[0].toFloat(&ok);
+      if (!ok)
+        return printAndReturnFalse("Invalid number in COOP data!");
+
+      double energy = splitLine[1].toFloat(&ok);
+      if (!ok)
+        return printAndReturnFalse("Invalid number in COOP data!");
+
+      tmpCoops.append(coop);
+      tmpEnergies.append(energy);
+      ++ind;
+    }
+    coops.append(tmpCoops);
+    energies.append(tmpEnergies);
+    ++numCoopsSoFar;
+    if (numCoopsSoFar != numCoops) {
+      // Get to the next set of COOP data if it exists
+      while (!lines.isEmpty() &&
+             !lines[0].contains("END CURVE")) {
+        lines.removeFirst();
+      }
+      if (lines.isEmpty())
+        return printAndReturnFalse("Could not find all COOP data!");
+    }
+  }
+
+  // We made it!
+  return true;
+}

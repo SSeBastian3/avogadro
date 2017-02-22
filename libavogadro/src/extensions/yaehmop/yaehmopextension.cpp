@@ -43,6 +43,7 @@
 #include "guessprojections.h"
 #include "numvalenceelectrons.h"
 #include "yaehmopbanddialog.h"
+#include "yaehmopcoopdialog.h"
 #include "yaehmopextension.h"
 #include "yaehmopprojecteddosdialog.h"
 #include "yaehmoptotaldosdialog.h"
@@ -96,13 +97,18 @@ namespace Avogadro
     m_actions.append(action);
     connect(action, SIGNAL(triggered()), SLOT(calculateTotalDOS()));
 
-// This will be added soon!
     // create an action for our third action
     action = new QAction( this );
     action->setText( tr("Calculate Projected Density of States..."));
     action->setData(ActionIndex);
     m_actions.append(action);
     connect(action, SIGNAL(triggered()), SLOT(calculateProjectedDOS()));
+
+    action = new QAction( this );
+    action->setText( tr("Calculate Crystal COOP..."));
+    action->setData(ActionIndex);
+    m_actions.append(action);
+    connect(action, SIGNAL(triggered()), SLOT(calculateCOOP()));
 
     action = new QAction( this );
     action->setText(tr("Set Parameters File..."));
@@ -406,15 +412,14 @@ namespace Avogadro
     // If we have the fermi energy, plot that as a dashed line
     if (m_plotFermi) {
       double tempFermi = (m_zeroFermi ? 0 : m_fermi);
-      size_t num = 75;
-      for (size_t i = 0; i < num; i += 2) {
+      size_t range = 75;
+      for (size_t i = 0; i < range; i += 2) {
         PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
-        tempPo->addPoint(QPointF(static_cast<double>(i) /
-                                 static_cast<double>(num) *
-                                 static_cast<double>(max_x), tempFermi));
-        tempPo->addPoint(QPointF(static_cast<double>(i + 1) /
-                                 static_cast<double>(num) *
-                                 static_cast<double>(max_x), tempFermi));
+        double newRange = max_x - min_x;
+        double x1 = (((i - min_x) * newRange) / range) + min_x;
+        double x2 = (((i + 1 - min_x) * newRange) / range) + min_x;
+        tempPo->addPoint(QPointF(x1, tempFermi));
+        tempPo->addPoint(QPointF(x2, tempFermi));
         pw->addPlotObject(tempPo);
       }
     }
@@ -1185,7 +1190,279 @@ namespace Avogadro
 
     // Show the plot!
     pw->show();
+  }
 
+  void YaehmopExtension::calculateCOOP()
+  {
+    QString input = createYaehmopCOOPInput();
+    // If the input is empty, either the user cancelled
+    // or an error box has already popped up...
+    if (input.isEmpty())
+      return;
+
+    QString output;
+
+    // Execute Yaehmop
+    if (!executeYaehmop(input, output)) {
+      qDebug() << "Error while executing Yaehmop in " <<  __FUNCTION__;
+      return;
+    }
+
+    //qDebug() << "Input is: " << input;
+    //qDebug() << "Output is: " << output;
+
+    QString error;
+    if (!checkForErrors(output, error)) {
+      QMessageBox::warning(NULL,
+                        tr("Yaehmop"),
+                        tr((QString("Data may be invalid. "
+                                    "Error received in calculation:\n")
+                            + error).toStdString().c_str()));
+      qDebug() << "Full Yaehmop output is as follows:\n" << output;
+      qDebug() << "Data may be invalid. Error received in calculation:\n" +
+                  error;
+    }
+
+    //qDebug() << "input is " << input;
+    //qDebug() << "output is " << output;
+
+    // First, let's get the fermi energy
+    bool fermiFound = true;
+    double unadjustedFermi, fermi = 0.0;
+    if (!YaehmopOut::getFermiLevelFromDOSData(output, unadjustedFermi)) {
+      qDebug() << "Fermi level could not be obtained in " << __FUNCTION__;
+      fermiFound = false;
+    }
+
+    if (!m_zeroFermi)
+      fermi = unadjustedFermi;
+
+    // Trim the output so it only contains the COOP data
+    // Remove everything before the COOP line
+    int ind = output
+                .indexOf("COOP (Crystal Orbital Overlap Population) results");
+    if (ind == -1) {
+      qDebug() << "Error in " << __FUNCTION__ << ": COOP data not found in"
+               << "Yaehmop output!";
+      return;
+    }
+    output.remove(0, ind - 1);
+
+    // Now to read COOP DOS data
+    QStringList titles;
+    QVector<QVector<double> > coops;
+    QVector<QVector<double> > energies;
+
+    if (!YaehmopOut::readCOOPData(output, titles,
+                                  coops, energies) ||
+        coops.size() == 0 ||
+        coops.size() != energies.size() ||
+        coops.size() != titles.size()) {
+      qDebug() << "Error in " << __FUNCTION__
+               << ": failed to read COOP data!";
+      return;
+    }
+
+    // Now check to make sure all the COOP datas are of the same size
+    for (size_t i = 0; i < coops.size(), i < energies.size(); ++i) {
+      if (coops[i].size() != energies[i].size()) {
+        qDebug() << "Error in " << __FUNCTION__
+                 << ": mismatched sizes in COOP data!";
+        return;
+      }
+    }
+
+    // If we need to zero the Fermi energy, go ahead and do that
+    if (fermiFound && m_zeroFermi) {
+      for (size_t i = 0; i < energies.size(); ++i) {
+        for (size_t j = 0; j < energies[i].size(); ++j)
+          energies[i][j] -= unadjustedFermi;
+      }
+    }
+
+    // If we smooth data, this will be calculated
+    QList<double> integration;
+
+    // Let's smooth the data if we need to
+    if (m_useSmoothing) {
+
+      // Now smooth the COOP data
+      for (size_t i = 0; i < coops.size(),
+                         i < energies.size(); ++i) {
+        smoothData(coops[i], energies[i], m_eStep, m_broadening);
+      }
+
+      // Let's get the integration data for the data as well
+      // This assumes uniform spacing between the energy levels
+/*    double xDiff = (totalEnergies.size() > 1 ?
+                      totalEnergies[1] - totalEnergies[0]: 0.0);
+      integration = integrateDataTrapezoidal(xDiff, totalDensities);
+*/
+    }
+
+    // Plotting is fairly simple - coops on x axis and energies on y
+    // These values are close to the limits of doubles
+    double min_y = 1e300, max_y = -1e300;
+    double min_x = 1e300, max_x = -1e300;
+
+    for (size_t i = 0; i < coops.size(),
+                       i < energies.size(); ++i) {
+      for (size_t j = 0; j < coops[i].size(),
+                         j < energies[i].size(); ++j) {
+        // Correct the min_x, max_x, min_y, and max_y
+        if (coops[i][j] < min_x)
+          min_x = coops[i][j];
+        if (coops[i][j] > max_x)
+          max_x = coops[i][j];
+        if (energies[i][j] < min_y)
+          min_y = energies[i][j];
+        if (energies[i][j] > max_y)
+          max_y = energies[i][j];
+      }
+    }
+
+    PlotWidget *pw = new PlotWidget;
+    pw->setWindowTitle(tr("Yaehmop Crystal COOP"));
+
+    // Let's make our widget a reasonable size
+    pw->resize(500, 500);
+
+    // Set our limits for the plot
+    // If we are limiting y, then change min_y and max_y
+    if (m_limitY) {
+      min_y = m_minY;
+      max_y = m_maxY;
+    }
+    pw->setDefaultLimits(min_x, max_x, min_y, max_y);
+
+    // Set up our axes
+    pw->axis(PlotWidget::BottomAxis)->setLabel(tr("COOP"));
+    pw->axis(PlotWidget::LeftAxis)->setLabel(tr("Energy (eV)"));
+
+    // White background
+    pw->setBackgroundColor(Qt::white);
+    pw->setForegroundColor(Qt::black);
+
+    // Add the objects
+    PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
+    po->linePen().setWidth(1);
+
+    // Add the projected objects
+    for (size_t i = 0; i < coops.size(),
+                       i < energies.size(); ++i) {
+      PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
+      ppo->linePen().setWidth(1);
+      for (size_t j = 0; j < coops[i].size(); ++j)
+        ppo->addPoint(QPointF(coops[i][j], energies[i][j]));
+      pw->addPlotObject(ppo);
+    }
+
+    // If we have the fermi energy, plot that as a dashed line
+    if (fermiFound) {
+      double tempFermi = (m_zeroFermi ? 0 : m_fermi);
+      size_t range = 75;
+      for (size_t i = 0; i < range; i += 2) {
+        PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
+        double newRange = max_x - min_x;
+        double x1 = (((i - min_x) * newRange) / range) + min_x;
+        double x2 = (((i + 1 - min_x) * newRange) / range) + min_x;
+        tempPo->addPoint(QPointF(x1, tempFermi));
+        tempPo->addPoint(QPointF(x2, tempFermi));
+        pw->addPlotObject(tempPo);
+      }
+      // Also set the unadjusted fermi level in memory
+      m_fermi = unadjustedFermi;
+    }
+
+    // If we have the integration data, plot that as well. Make it blue.
+/*    if (integration.size() != 0) {
+      double maxVal = integration[integration.size() - 1];
+      PlotObject *tempPo = new PlotObject(Qt::blue, PlotObject::Lines);
+      tempPo->linePen().setWidth(2);
+      for (size_t i = 0; i < integration.size(); ++i) {
+        tempPo->addPoint(QPointF(integration[i] / maxVal * max_x,
+                                 totalEnergies[i]));
+      }
+      pw->addPlotObject(tempPo);
+      // Now let's add a label for it and use secondary axes
+      pw->setSecondaryLimits(0, qRound(maxVal), min_y, max_y);
+      pw->axis(PlotWidget::TopAxis)->setLabel(tr("Integration (# electrons)"));
+      pw->axis(PlotWidget::TopAxis)->setVisible(true);
+      pw->axis(PlotWidget::TopAxis)->setTickLabelsShown(true);
+      pw->setTopPadding(60);
+    }
+*/
+    pw->addPlotObject(po);
+    pw->setAttribute(Qt::WA_DeleteOnClose);
+
+    // If we are to display COOP data, show that first
+    if (m_displayData) {
+      QString COOPDataStr;
+
+      // Show number of dimensions first
+      COOPDataStr += QString("# Number of dimensions: ") +
+                     QString::number(m_numDimensions) + "\n";
+
+      // Let's print the fermi energy
+      if (fermiFound)
+        COOPDataStr += QString("# Unadjusted Fermi level: ") +
+                       QString::number(unadjustedFermi) + "\n";
+      else
+        COOPDataStr += "# Fermi level not found!\n";
+
+      // Now for the actual data
+      COOPDataStr += "\n\n# COOP Data\n";
+      for (size_t i = 0; i < coops.size(),
+                         i < energies.size(); ++i) {
+        COOPDataStr += (QString("\n# ") + titles[i]);
+        COOPDataStr += "\n# <COOP (x)> <energy (y)>\n";
+        for (size_t j = 0; j < coops[i].size(),
+                           j < energies[i].size(); ++j) {
+          COOPDataStr += (QString().sprintf("%10.6f", coops[i][j]) +
+                          " " + QString().sprintf("%10.6f",
+                                                  energies[i][j]) + "\n");
+        }
+      }
+
+      // Done! Let's make the dialog and show it.
+      QDialog* dialog = new QDialog;
+      QVBoxLayout* layout = new QVBoxLayout;
+      dialog->setLayout(layout);
+      dialog->setWindowTitle(tr("Yaehmop COOP Results"));
+      QTextEdit* edit = new QTextEdit;
+      layout->addWidget(edit);
+      dialog->resize(500, 500);
+
+      // Show the user the output
+      edit->setText(COOPDataStr);
+
+      // Make sure this gets deleted upon closing
+      dialog->setAttribute(Qt::WA_DeleteOnClose);
+      dialog->show();
+    }
+
+    // Now let's create the text legend
+    QString legendStr;
+
+    for (size_t i = 0; i < titles.size(); ++i) {
+      if (titles[i].trimmed().isEmpty())
+        titles[i] = "Unnamed";
+      legendStr += titles[i] + ": " + colorName(i) + "\n";
+    }
+
+    QDialog* dialog = new QDialog;
+    QVBoxLayout* layout = new QVBoxLayout;
+    dialog->setLayout(layout);
+    dialog->setWindowTitle(tr("Yaehmop COOP Color Legend"));
+    QTextEdit* edit = new QTextEdit;
+    layout->addWidget(edit);
+    dialog->resize(500, 500);
+    edit->setText(legendStr);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+
+    // Show the plot!
+    pw->show();
   }
 
   QString YaehmopExtension::createYaehmopBandInput()
@@ -1359,6 +1636,67 @@ namespace Avogadro
 
     // projections!
     input += (QString("\n") + projections);
+
+    // We're done!
+    return input;
+  }
+
+  QString YaehmopExtension::createYaehmopCOOPInput()
+  {
+    if (!m_molecule) {
+      qDebug() << "Error in " << __FUNCTION__ << ": the molecule is not set";
+      return "";
+    }
+
+    OpenBabel::OBUnitCell *cell = m_molecule->OBUnitCell();
+    if (!cell) {
+      QMessageBox::warning(NULL,
+                           tr("Avogadro"),
+                           tr("Cannot calculate crystal COOP: no unit cell!"));
+      qDebug() << "Error in " << __FUNCTION__ << ": there is no unit cell";
+      return "";
+    }
+
+    QList<Atom*> atoms = m_molecule->atoms();
+    std::vector<unsigned char> atomicNums;
+    std::vector<std::string> atomicSymbols;
+    for (size_t i = 0; i < atoms.size(); ++i) {
+      atomicNums.push_back(atoms[i]->atomicNumber());
+      atomicSymbols.push_back(OpenBabel::etab.GetSymbol(atomicNums[i]));
+    }
+    size_t numValElectrons = numValenceElectrons(atomicNums);
+    size_t numKPoints = 0;
+    QString coopsString;
+    QString tempDOSKPoints = m_dosKPoints;
+    YaehmopCOOPDialog d;
+    if (!d.getUserOptions(this, numValElectrons, numKPoints,
+                          tempDOSKPoints, coopsString, m_displayData,
+                          m_useSmoothing, m_eStep, m_broadening, m_limitY,
+                          m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
+      return "";
+    }
+
+    // Proceed with the function
+    QString input;
+    input += "Title\n"; // Title
+
+    // Crystal geometry
+    input += createGeometryAndLatticeInput();
+
+    // COOP is calculated in an average properties calculation
+    input += "average properties\n";
+
+    // Now we need to input the number of valence electrons
+    input += "electrons\n";
+    input += (QString::number(numValElectrons) + "\n");
+
+    // k points!
+    input += "k points\n";
+    input += (QString::number(numKPoints) + "\n");
+    input += tempDOSKPoints;
+
+    // COOPS!
+    input += (QString("\n") + coopsString);
 
     // We're done!
     return input;

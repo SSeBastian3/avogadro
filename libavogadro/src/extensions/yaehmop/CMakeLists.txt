@@ -7,6 +7,7 @@ set(PLUGIN_TARGET extensions)
 set(yaehmopextension_SRCS
   specialkpoints.cpp
   yaehmopbanddialog.cpp
+  yaehmopcoopdialog.cpp
   yaehmopextension.cpp
   yaehmopprojecteddosdialog.cpp
   yaehmoptotaldosdialog.cpp
@@ -15,6 +16,7 @@ set(yaehmopextension_SRCS
 
 set(yaehmopextension_UIS
   yaehmopbanddialog.ui
+  yaehmopcoopdialog.ui
   yaehmopprojecteddosdialog.ui
   yaehmoptotaldosdialog.ui
 )
