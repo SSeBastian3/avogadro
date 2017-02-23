@@ -40,7 +40,6 @@
 #include <QTextEdit>
 #include <QVector3D>
 
-#include "guessprojections.h"
 #include "numvalenceelectrons.h"
 #include "yaehmopbanddialog.h"
 #include "yaehmopcoopdialog.h"
@@ -1343,11 +1342,14 @@ namespace Avogadro
     pw->setBackgroundColor(Qt::white);
     pw->setForegroundColor(Qt::black);
 
-    // Add the objects
-    PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
+    // Add a vertical line at x == 0
+    PlotObject *po = new PlotObject(Qt::black, PlotObject::Lines);
     po->linePen().setWidth(1);
+    po->addPoint(QPointF(0.0, min_y));
+    po->addPoint(QPointF(0.0, max_y));
+    pw->addPlotObject(po);
 
-    // Add the projected objects
+    // Add the COOP objects
     for (size_t i = 0; i < coops.size(),
                        i < energies.size(); ++i) {
       PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
@@ -1392,7 +1394,6 @@ namespace Avogadro
       pw->setTopPadding(60);
     }
 */
-    pw->addPlotObject(po);
     pw->setAttribute(Qt::WA_DeleteOnClose);
 
     // If we are to display COOP data, show that first
@@ -1595,14 +1596,11 @@ namespace Avogadro
     // through the rest of the algorithm if they cancel...
     QList<Atom*> atoms = m_molecule->atoms();
     std::vector<unsigned char> atomicNums;
-    std::vector<std::string> atomicSymbols;
-    for (size_t i = 0; i < atoms.size(); ++i) {
+    for (size_t i = 0; i < atoms.size(); ++i)
       atomicNums.push_back(atoms[i]->atomicNumber());
-      atomicSymbols.push_back(OpenBabel::etab.GetSymbol(atomicNums[i]));
-    }
     size_t numValElectrons = numValenceElectrons(atomicNums);
     size_t numKPoints = 0;
-    QString projections = guessTypedAtomProjections(atomicSymbols);
+    QString projections;
     QString tempDOSKPoints = m_dosKPoints;
     YaehmopProjectedDOSDialog d;
     if (!d.getUserOptions(this, numValElectrons, numKPoints,

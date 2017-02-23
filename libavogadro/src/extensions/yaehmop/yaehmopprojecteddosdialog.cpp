@@ -14,6 +14,7 @@
 
 ******************************************************************************/
 
+#include "guessprojections.h"
 #include "yaehmopprojecteddosdialog.h"
 #include "yaehmopextension.h"
 #include "ui_yaehmopprojecteddosdialog.h"
@@ -26,9 +27,15 @@ namespace Avogadro {
 
   YaehmopProjectedDOSDialog::YaehmopProjectedDOSDialog(QWidget *p) :
     QDialog(p),
-    m_ui(new Ui::YaehmopProjectedDOSDialog)
+    m_ui(new Ui::YaehmopProjectedDOSDialog),
+    m_yext(NULL)
   {
     m_ui->setupUi(this);
+
+    connect(m_ui->push_displayAtomProj, SIGNAL(clicked()),
+            this, SLOT(displayAtomProjections()));
+    connect(m_ui->push_displayOrbitalProj, SIGNAL(clicked()),
+            this, SLOT(displayOrbitalProjections()));
   }
 
   YaehmopProjectedDOSDialog::~YaehmopProjectedDOSDialog()
@@ -52,11 +59,11 @@ namespace Avogadro {
                                                  bool& zeroFermi,
                                                  unsigned short& numDimensions)
   {
+    m_yext = yext;
     numKPoints = 0;
     titles.clear();
     m_ui->spin_numValElectrons->setValue(numValElectrons);
     m_ui->edit_kpoints->setText(kPoints);
-    m_ui->edit_projections->setText(projections);
     m_ui->cb_displayTotalDOS->setChecked(displayTotalDOS);
     m_ui->cb_displayData->setChecked(displayDOSData);
     m_ui->cb_useSmoothing->setChecked(useSmoothing);
@@ -70,6 +77,7 @@ namespace Avogadro {
       m_ui->cb_1DSystem->setChecked(true);
     if (numDimensions == 2)
       m_ui->cb_2DSystem->setChecked(true);
+    displayAtomProjections();
 
     if (this->exec() == QDialog::Rejected)
       return false;
@@ -297,9 +305,27 @@ namespace Avogadro {
       numDimensions = 3;
 
     // We have to set this in here so we can keep the "kpointsText"
-    yext->setDOSKPoints(kpointsText);
+    m_yext->setDOSKPoints(kpointsText);
 
     return true;
+  }
+
+  void YaehmopProjectedDOSDialog::displayAtomProjections()
+  {
+    if (!m_yext)
+      return;
+    m_ui->edit_projections->setText(
+      guessTypedAtomProjections(m_yext->getMolecule())
+    );
+  }
+
+  void YaehmopProjectedDOSDialog::displayOrbitalProjections()
+  {
+    if (!m_yext)
+      return;
+    m_ui->edit_projections->setText(
+      guessOrbitalProjections(m_yext->getMolecule())
+    );
   }
 
   void YaehmopProjectedDOSDialog::displayInvalidKPointsFormatMessage()

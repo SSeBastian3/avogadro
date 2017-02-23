@@ -37,6 +37,8 @@ namespace Avogadro {
     virtual QString menuPath(QAction *action) const;
 
     virtual void setMolecule(Molecule *molecule);
+    Molecule* getMolecule() { return m_molecule; };
+    const Molecule* getMolecule() const { return m_molecule; };
 
     virtual QDockWidget * dockWidget();
     virtual QUndoCommand* performAction(QAction *action, GLWidget *widget);

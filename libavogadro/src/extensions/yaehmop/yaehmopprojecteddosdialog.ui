@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>566</width>
-    <height>539</height>
+    <height>559</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Yaehmop Projected DOS</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="9" column="1">
+   <item row="10" column="1">
     <widget class="QCheckBox" name="cb_displayTotalDOS">
      <property name="text">
       <string>Display Total DOS?</string>
@@ -48,7 +48,7 @@
      </property>
     </widget>
    </item>
-   <item row="13" column="0">
+   <item row="14" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Energy step size:</string>
@@ -94,7 +94,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="14" column="0">
+   <item row="15" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Gaussian broadening:</string>
@@ -104,7 +104,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="11" column="1">
+   <item row="12" column="1">
     <widget class="QCheckBox" name="cb_useSmoothing">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to use Gaussian smoothing to smooth the data.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Smoothing is typically performed for density of states data.&lt;/p&gt;&lt;p&gt;Default: on&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -117,7 +117,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="13" column="1">
+   <item row="14" column="1">
     <widget class="QDoubleSpinBox" name="spin_energyStep">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The energy step size for Gaussian smoothing. &lt;/p&gt;&lt;p&gt;Default: 0.1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -148,7 +148,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="14" column="1">
+   <item row="15" column="1">
     <widget class="QDoubleSpinBox" name="spin_broadening">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gaussian broadening for Gaussian smoothing. The Gaussian broadening is the standard deviation.&lt;/p&gt;&lt;p&gt;Default: 0.1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -173,7 +173,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="20" column="0" colspan="2">
+   <item row="21" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -183,7 +183,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="18" column="1">
+   <item row="19" column="1">
     <widget class="QDoubleSpinBox" name="spin_maxY">
      <property name="enabled">
       <bool>false</bool>
@@ -205,7 +205,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
+   <item row="11" column="1">
     <widget class="QCheckBox" name="cb_displayData">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to display the density of states data in a&lt;/p&gt;&lt;p&gt;pop-up box after the calculation finishes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Data may be copied and pasted into a separate file.&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -215,7 +215,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="18" column="0">
+   <item row="19" column="0">
     <widget class="QDoubleSpinBox" name="spin_minY">
      <property name="enabled">
       <bool>false</bool>
@@ -237,7 +237,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="9" column="1">
     <widget class="QCheckBox" name="cb_zeroFermi">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Subtracts the Fermi energy from all other energies so that the Fermi energy is set to be zero.&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -247,7 +247,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="15" column="1">
+   <item row="16" column="1">
     <widget class="QCheckBox" name="cb_limitY">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Limit the y-range?&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -271,7 +271,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="19" column="0">
+   <item row="20" column="0">
     <widget class="QCheckBox" name="cb_1DSystem">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If this box is checked, periodicity will only be along the A lattice vector.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -281,13 +281,27 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="19" column="1">
+   <item row="20" column="1">
     <widget class="QCheckBox" name="cb_2DSystem">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If this box is checked, periodicity will only be along the A and B lattice vectors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>2-D system?</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QPushButton" name="push_displayOrbitalProj">
+     <property name="text">
+      <string>Display Orbital Projections</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QPushButton" name="push_displayAtomProj">
+     <property name="text">
+      <string>Display Atom Projections (Default)</string>
      </property>
     </widget>
    </item>

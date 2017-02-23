@@ -89,8 +89,13 @@ public:
   void displayInvalidKPointsFormatMessage();
   void displayInvalidProjectionsFormatMessage();
 
+private slots:
+  void displayAtomProjections();
+  void displayOrbitalProjections();
+
 private:
   Ui::YaehmopProjectedDOSDialog *m_ui;
+  YaehmopExtension* m_yext;
 };
 
 } // namespace Avogadro
