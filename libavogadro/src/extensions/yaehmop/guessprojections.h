@@ -39,6 +39,16 @@ inline static bool alreadyUsed(const std::string& symbol,
   return false;
 }
 
+inline static bool alreadyUsed(int atomicNum,
+                               const std::vector<int>& alreadyLookedAt)
+{
+  for (size_t i = 0; i < alreadyLookedAt.size(); ++i) {
+    if (atomicNum == alreadyLookedAt[i])
+      return true;
+  }
+  return false;
+}
+
 /* Returns a guess for the yaehmop projections QString of a set of atomic
  * symbols. Does them by types. For example, {O, Ti, O} would return:
  * # O
@@ -75,6 +85,75 @@ static QString guessTypedAtomProjections(const Avogadro::Molecule* mol)
 }
 
 static QString guessOrbitalProjections(const Avogadro::Molecule* mol)
+{
+  QString ret;
+  QList<Avogadro::Atom*> atoms = mol->atoms();
+  std::vector<int> alreadyLookedAt;
+
+  for (size_t i = 0; i < atoms.size(); ++i) {
+    int atomicNum = atoms[i]->atomicNumber();
+
+    if (alreadyUsed(atomicNum, alreadyLookedAt))
+      continue;
+    alreadyLookedAt.push_back(atomicNum);
+
+    int numOrbs = getNumYaehmopOrbitals(atomicNum);
+    int angMaxInd = 0;
+    if (numOrbs == 1)
+      angMaxInd = 1;
+    else if (numOrbs == 4)
+      angMaxInd = 2;
+    else if (numOrbs == 9)
+      angMaxInd = 3;
+    else if (numOrbs == 16)
+      angMaxInd = 4;
+
+    for (size_t angInd = 0; angInd < angMaxInd; ++angInd) {
+      ret += "# ";
+      ret += (QString(OpenBabel::etab.GetSymbol(atomicNum)) + " ");
+      if (angInd == 0)
+        ret += "s";
+      else if (angInd == 1)
+        ret += "px, py, pz";
+      else if (angInd == 2)
+        ret += "dx2y2, dz2, dxy, dxz, dyz";
+      else if (angInd == 3)
+        ret += "fz3, fxz2, fyz2, fxyz, fz(x2-y2), fx(x2-3y2), fy(3x2-y2)";
+      ret += "\norbital ";
+
+      size_t orbInd = 1;
+      for (size_t j = 0; j < atoms.size(); ++j) {
+        if (atomicNum == atoms[j]->atomicNumber()) {
+          if (angInd == 0) {
+            ret += (QString::number(orbInd) + " 1.0, ");
+          }
+          if (angInd == 1) {
+            for (size_t k = 1; k <= 3; ++k)
+              ret += (QString::number(orbInd + k) + " 1.0, ");
+          }
+          if (angInd == 2) {
+            for (size_t k = 4; k <= 8; ++k)
+              ret += (QString::number(orbInd + k) + " 1.0, ");
+          }
+          if (angInd == 3) {
+            for (size_t k = 9; k <= 15; ++k)
+              ret += (QString::number(orbInd + k) + " 1.0, ");
+          }
+        }
+        if (j + 1 == atoms.size()) {
+          // Remove the final ", ", and create a new line.
+          if (ret.size() >= 2)
+            ret.chop(2);
+          ret += "\n";
+        }
+        orbInd += getNumYaehmopOrbitals(atoms[j]->atomicNumber());
+      }
+    }
+  }
+  return ret;
+}
+
+static QString guessDetailedOrbitalProjections(const Avogadro::Molecule* mol)
 {
   QString ret;
   QList<Avogadro::Atom*> atoms = mol->atoms();

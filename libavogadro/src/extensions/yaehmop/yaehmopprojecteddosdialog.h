@@ -92,6 +92,7 @@ public:
 private slots:
   void displayAtomProjections();
   void displayOrbitalProjections();
+  void displayDetailedOrbitalProjections();
 
 private:
   Ui::YaehmopProjectedDOSDialog *m_ui;

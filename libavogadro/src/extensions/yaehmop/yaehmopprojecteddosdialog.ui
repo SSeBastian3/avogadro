@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>566</width>
-    <height>559</height>
+    <height>569</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -302,6 +302,13 @@ p, li { white-space: pre-wrap; }
     <widget class="QPushButton" name="push_displayAtomProj">
      <property name="text">
       <string>Display Atom Projections (Default)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QPushButton" name="push_displayDetailedOrbitalProj">
+     <property name="text">
+      <string>Display Detailed Orbital Projections</string>
      </property>
     </widget>
    </item>

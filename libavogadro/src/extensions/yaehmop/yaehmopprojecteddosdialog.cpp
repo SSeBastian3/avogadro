@@ -36,6 +36,8 @@ namespace Avogadro {
             this, SLOT(displayAtomProjections()));
     connect(m_ui->push_displayOrbitalProj, SIGNAL(clicked()),
             this, SLOT(displayOrbitalProjections()));
+    connect(m_ui->push_displayDetailedOrbitalProj, SIGNAL(clicked()),
+            this, SLOT(displayDetailedOrbitalProjections()));
   }
 
   YaehmopProjectedDOSDialog::~YaehmopProjectedDOSDialog()
@@ -320,6 +322,15 @@ namespace Avogadro {
   }
 
   void YaehmopProjectedDOSDialog::displayOrbitalProjections()
+  {
+    if (!m_yext)
+      return;
+    m_ui->edit_projections->setText(
+      guessOrbitalProjections(m_yext->getMolecule())
+    );
+  }
+
+  void YaehmopProjectedDOSDialog::displayDetailedOrbitalProjections()
   {
     if (!m_yext)
       return;
