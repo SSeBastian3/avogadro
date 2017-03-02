@@ -335,7 +335,7 @@ namespace Avogadro {
     if (!m_yext)
       return;
     m_ui->edit_projections->setText(
-      guessOrbitalProjections(m_yext->getMolecule())
+      guessDetailedOrbitalProjections(m_yext->getMolecule())
     );
   }
 
