@@ -1664,7 +1664,14 @@ namespace Avogadro
     }
     size_t numValElectrons = numValenceElectrons(atomicNums);
     size_t numKPoints = 0;
+
     QString coopsString;
+    // Just give the user a little sample input
+    if (m_molecule->atoms().size() > 1)
+      coopsString = "atom   1    1 2   0 0 0";
+    else if (m_molecule->atoms().size() == 1)
+      coopsString = "atom   1    1 1   1 0 0";
+
     QString tempDOSKPoints = m_dosKPoints;
     YaehmopCOOPDialog d;
     if (!d.getUserOptions(this, numValElectrons, numKPoints,

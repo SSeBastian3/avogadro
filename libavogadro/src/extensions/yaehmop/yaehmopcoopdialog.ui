@@ -284,6 +284,20 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
+   <item row="8" column="0">
+    <widget class="QPushButton" name="push_viewAtomNumbers">
+     <property name="text">
+      <string>View Atom Numbers...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QPushButton" name="push_viewOrbitalNumbers">
+     <property name="text">
+      <string>View Orbital Numbers...</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>

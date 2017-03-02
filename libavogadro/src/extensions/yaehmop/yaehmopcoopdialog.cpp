@@ -14,6 +14,7 @@
 
 ******************************************************************************/
 
+#include "guessprojections.h"
 #include "yaehmopcoopdialog.h"
 #include "yaehmopextension.h"
 #include "ui_yaehmopcoopdialog.h"
@@ -26,9 +27,15 @@ namespace Avogadro {
 
   YaehmopCOOPDialog::YaehmopCOOPDialog(QWidget *p) :
     QDialog(p),
-    m_ui(new Ui::YaehmopCOOPDialog)
+    m_ui(new Ui::YaehmopCOOPDialog),
+    m_yext(NULL)
   {
     m_ui->setupUi(this);
+
+    connect(m_ui->push_viewAtomNumbers, SIGNAL(clicked()),
+            this, SLOT(viewAtomNumbers()));
+    connect(m_ui->push_viewOrbitalNumbers, SIGNAL(clicked()),
+            this, SLOT(viewOrbitalNumbers()));
   }
 
   YaehmopCOOPDialog::~YaehmopCOOPDialog()
@@ -50,6 +57,7 @@ namespace Avogadro {
                                                  bool& zeroFermi,
                                                  unsigned short& numDimensions)
   {
+    m_yext = yext;
     numKPoints = 0;
     m_ui->spin_numValElectrons->setValue(numValElectrons);
     m_ui->edit_kpoints->setText(kPoints);
@@ -262,6 +270,47 @@ namespace Avogadro {
     yext->setDOSKPoints(kpointsText);
 
     return true;
+  }
+
+  void YaehmopCOOPDialog::viewAtomNumbers()
+  {
+    if (!m_yext)
+      return;
+
+    QDialog* dialog = new QDialog(this);
+    QVBoxLayout* layout = new QVBoxLayout;
+    dialog->setLayout(layout);
+    dialog->setWindowTitle(tr("View Atom Numbers"));
+    QTextEdit* edit = new QTextEdit;
+    layout->addWidget(edit);
+    dialog->resize(500, 500);
+
+    edit->setText(displayAtomNumbers(m_yext->getMolecule()));
+
+    // Make sure this gets deleted upon closing
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+  }
+
+  void YaehmopCOOPDialog::viewOrbitalNumbers()
+  {
+    if (!m_yext)
+      return;
+
+    QDialog* dialog = new QDialog(this);
+    QVBoxLayout* layout = new QVBoxLayout;
+    dialog->setLayout(layout);
+    dialog->setWindowTitle(tr("View Orbital Numbers"));
+    QTextEdit* edit = new QTextEdit;
+    layout->addWidget(edit);
+    dialog->resize(500, 500);
+
+    // Show the user the output
+    edit->setText(displayOrbitalNumbers(m_yext->getMolecule()));
+
+    // Make sure this gets deleted upon closing
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
   }
 
   void YaehmopCOOPDialog::displayInvalidKPointsFormatMessage()

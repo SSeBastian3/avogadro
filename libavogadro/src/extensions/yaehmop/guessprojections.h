@@ -84,6 +84,24 @@ static QString guessTypedAtomProjections(const Avogadro::Molecule* mol)
   return ret;
 }
 
+static QString displayAtomNumbers(const Avogadro::Molecule* mol)
+{
+  QList<Avogadro::Atom*> atoms = mol->atoms();
+
+  QString ret;
+  for (size_t i = 0; i < atoms.size(); ++i) {
+    unsigned int atomicNumber = atoms[i]->atomicNumber();
+    QString symbol = OpenBabel::etab.GetSymbol(atomicNumber);
+    const Eigen::Vector3d& pos = *atoms[i]->pos();
+    ret += (QString("# ") + symbol + " (");
+    ret += (QString::number(pos[0]) + ", " +
+            QString::number(pos[1]) + ", " +
+            QString::number(pos[2]) + ") (Cartesian): " + QString::number(i+1));
+    ret += "\n";
+  }
+  return ret;
+}
+
 static QString guessOrbitalProjections(const Avogadro::Molecule* mol)
 {
   QString ret;
@@ -204,6 +222,64 @@ static QString guessDetailedOrbitalProjections(const Avogadro::Molecule* mol)
       ret += "orbital ";
       for (size_t i = 0; i < 7; ++i) {
         ret += (QString::number(ind) + " 1.0");
+        if (i != 6)
+          ret += ", ";
+        ++ind;
+      }
+      ret += "\n";
+    }
+    ret += "\n";
+  }
+  return ret;
+}
+
+static QString displayOrbitalNumbers(const Avogadro::Molecule* mol)
+{
+  QString ret;
+  QList<Avogadro::Atom*> atoms = mol->atoms();
+  size_t ind = 1;
+
+  for (size_t i = 0; i < atoms.size(); ++i) {
+    int atomicNum = atoms[i]->atomicNumber();
+    const Eigen::Vector3d& pos = *atoms[i]->pos();
+
+    ret += "# ";
+    ret += OpenBabel::etab.GetSymbol(atoms[i]->atomicNumber());
+    ret += (QString(" (") + QString::number(pos[0]) + ", " +
+                             QString::number(pos[1]) + ", " +
+                             QString::number(pos[2]) +
+             ") (Cartesian)\n");
+    size_t numOrbs = getNumYaehmopOrbitals(atomicNum);
+    if (numOrbs == 0)
+      ret += "  # **No orbitals for this atomic number!**";
+    if (numOrbs >= 1) {
+      ret += (QString("  # s: ") + QString::number(ind) + "\n");
+      ++ind;
+    }
+    if (numOrbs >= 4) {
+      ret += "  # px, py, pz: ";
+      for (size_t i = 0; i < 3; ++i) {
+        ret += (QString::number(ind));
+        if (i != 2)
+          ret += ", ";
+        ++ind;
+      }
+      ret += "\n";
+    }
+    if (numOrbs >= 9) {
+      ret += "  # dx2y2, dz2, dxy, dxz, dyz: ";
+      for (size_t i = 0; i < 5; ++i) {
+        ret += (QString::number(ind));
+        if (i != 4)
+          ret += ", ";
+        ++ind;
+      }
+      ret += "\n";
+    }
+    if (numOrbs == 16) {
+      ret += "  # fz3, fxz2, fyz2, fxyz, fz(x2-y2), fx(x2-3y2), fy(3x2-y2): ";
+      for (size_t i = 0; i < 7; ++i) {
+        ret += (QString::number(ind));
         if (i != 6)
           ret += ", ";
         ++ind;

@@ -84,8 +84,15 @@ public:
   void displayInvalidKPointsFormatMessage();
   void displayInvalidCOOPSFormatMessage();
 
+public slots:
+  // Pops up a dialog box that shows the user the atom numbers
+  void viewAtomNumbers();
+  // Pops up a dialog box that shows the user the orbital numbers
+  void viewOrbitalNumbers();
+
 private:
   Ui::YaehmopCOOPDialog *m_ui;
+  YaehmopExtension *m_yext;
 };
 
 } // namespace Avogadro
