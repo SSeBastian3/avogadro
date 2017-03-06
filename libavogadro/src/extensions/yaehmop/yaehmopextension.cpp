@@ -745,8 +745,8 @@ namespace Avogadro
       // Purple
       return QColor(128, 0, 128);
     case 3:
-      // Black
-      return QColor(0, 0, 0);
+      // Light pink
+      return QColor(255, 182, 193);
     case 4:
       // Yellow
       return QColor(255, 255, 0);
@@ -766,8 +766,8 @@ namespace Avogadro
       // Dark blue
       return QColor(0, 0, 139);
     case 10:
-      // Light pink
-      return QColor(255, 182, 193);
+      // Black
+      return QColor(0, 0, 0);
     case 11:
       // Olive
       return QColor(128, 128, 0);
@@ -796,7 +796,7 @@ namespace Avogadro
     case 2:
       return "Purple";
     case 3:
-      return "Black";
+      return "Light pink";
     case 4:
       return "Yellow";
     case 5:
@@ -810,7 +810,7 @@ namespace Avogadro
     case 9:
       return "Dark blue";
     case 10:
-      return "Light pink";
+      return "Black";
     case 11:
       return "Olive";
     case 12:
