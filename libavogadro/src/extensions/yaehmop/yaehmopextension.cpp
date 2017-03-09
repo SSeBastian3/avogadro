@@ -1951,7 +1951,7 @@ namespace Avogadro
       double integ = 0.0;
       if (integration.size() != 0)
         integ = integration.last();
-      integ += xDist * (y[i] + y[i - 1]);
+      integ += xDist * (y[i] + y[i - 1]) / 2.0;
       integration.append(integ);
     }
 
@@ -1979,7 +1979,7 @@ namespace Avogadro
     size_t numPoints = densities.size();
     double pi = 3.14159265358979;
     // Normalization factor
-    double normFact = 1 / sqrt(2.0 * pow(broadening, 2.0) * pi);
+    double normFact = 2.0 / sqrt(2.0 * pow(broadening, 2.0) * pi);
     double minE = energies[0];
     double maxE = energies[numPoints - 1];
     size_t numSteps = ceil(fabs(maxE - minE) / stepE) + 1;
