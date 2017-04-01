@@ -826,28 +826,45 @@ namespace Avogadro
   }
 
   //added these functions to distinguish different integration lines
-  inline QColor intcolor(size_t i) {
+  inline QColor intColor(size_t i) {
     switch(i) {
-      case 0: return QColor(20,20,140); //Dark Blue
-      case 1: return QColor(0,150,37); //Lighter Green
-      case 2: return QColor(128,0,255); //Darker Purple
-      case 3: return QColor(174,173,172); //Light Gray
-      case 4: return QColor(224,195,37); //Gold
-      case 5: return QColor(128,195,66); //Light Green
-      case 6: return QColor(250,80,0); //some Orange
-      default: return QColor(0,0,0); //Black
+    case 0:
+      return QColor(20, 20, 140); //Dark Blue
+    case 1:
+      return QColor(0, 150, 37); //Lighter Green
+    case 2:
+      return QColor(128, 0, 255); //Darker Purple
+    case 3:
+      return QColor(174, 173, 172); //Light Gray
+    case 4:
+      return QColor(224, 195, 37); //Gold
+    case 5:
+      return QColor(128, 195, 66); //Light Green
+    case 6:
+      return QColor(250, 80, 0); //some Orange
+    default:
+      return QColor(0, 0, 0); //Black
     }
   }
-  inline QString intcolorName(size_t i) {
+
+  inline QString intColorName(size_t i) {
     switch(i) {
-      case 0: return "Dark Blue";
-      case 1: return "Lighter Green";
-      case 2: return "Darker Purple";
-      case 3: return "Light Gray";
-      case 4: return "Gold";
-      case 5: return "Light Green";
-      case 6: return "Some Orange";
-      default: return "Black";
+    case 0:
+      return "Dark Blue";
+    case 1:
+      return "Lighter Green";
+    case 2:
+      return "Darker Purple";
+    case 3:
+      return "Light Gray";
+    case 4:
+      return "Gold";
+    case 5:
+      return "Light Green";
+    case 6:
+      return "Some Orange";
+    default:
+      return "Black";
     }
   }
 
@@ -964,7 +981,7 @@ namespace Avogadro
 
     // If we smooth data, this will be calculated
     QList<double> integration;
-    QList<QList<double> > projintegration;
+    QList<QList<double> > projIntegration;
 
     // Let's smooth the data if we need to
     if (m_useSmoothing) {
@@ -976,11 +993,11 @@ namespace Avogadro
                          i < projEnergies.size(); ++i) {
         smoothData(projDensities[i], projEnergies[i], m_eStep, m_broadening);
       }
-      for (size_t i=0; i<projDensities.size(); ++i) {
-        projintegration.push_back(QList<double> ());
+      for (size_t i = 0; i < projDensities.size(); ++i) {
         double projxDiff = (projEnergies[i].size() > 1 ?
-                           projEnergies[i][1] - projEnergies[i][0] : 0.0);
-        projintegration[i] = integrateDataTrapezoidal(projxDiff,projDensities[i]);
+                            projEnergies[i][1] - projEnergies[i][0] : 0.0);
+        projIntegration.append(integrateDataTrapezoidal(projxDiff,
+                                                        projDensities[i]));
       }
 
       // Let's get the integration data for the total DOS as well
@@ -1101,25 +1118,24 @@ namespace Avogadro
       pw->setTopPadding(60);
     }
 
-    for (size_t i=0;i<projintegration.size();++i) {
-      double maxVal;
-      if (projintegration[i].size() != 0) {
-        if (i==0) {
-          maxVal = projintegration[i][projintegration[i].size() - 1];
-        } else if (maxVal<projintegration[i][projintegration[i].size()-1]){
-          maxVal =  projintegration[i][projintegration[i].size() - 1];
-        }
-        PlotObject *tempPo = new PlotObject(intcolor(i), PlotObject::Lines);
+    for (size_t i = 0; i < projIntegration.size(); ++i) {
+      if (!projIntegration[i].empty()) {
+        double maxVal = projIntegration[i].back();
+
+        PlotObject *tempPo = new PlotObject(intColor(i), PlotObject::Lines);
         tempPo->linePen().setWidth(2);
-          for (size_t j = 0; j < projintegration[i].size(); ++j){
-            tempPo->addPoint(QPointF(projintegration[i][j] / maxVal * max_x,
+
+        for (size_t j = 0; j < projIntegration[i].size(); ++j) {
+          tempPo->addPoint(QPointF(projIntegration[i][j] / maxVal * max_x,
                                    projEnergies[i][j]));
-          }
+        }
+
         pw->addPlotObject(tempPo);
-        qDebug()<<maxVal;
+
         // Now let's add a label for it and use secondary axes
         pw->setSecondaryLimits(0, qRound(maxVal), min_y, max_y);
-       pw->axis(PlotWidget::TopAxis)->setLabel(tr("Integration (# electrons)"));
+        pw->axis(PlotWidget::TopAxis)->setLabel(
+          tr("Integration (# electrons)"));
         pw->axis(PlotWidget::TopAxis)->setVisible(true);
         pw->axis(PlotWidget::TopAxis)->setTickLabelsShown(true);
         pw->setTopPadding(60);
@@ -1206,17 +1222,17 @@ namespace Avogadro
         }
       }
 
-      //splice code 4
-      if (projintegration.size() != 0) {
+      if (!projIntegration.empty()) {
         DOSDataStr += "\n\n# Integration Data:\n";
-        for (size_t i = 0; i < projintegration.size(); ++i) {
-          DOSDataStr+="\nIntegration data of integration line\n"+intcolorName(i);
+        for (size_t i = 0; i < projIntegration.size(); ++i) {
+          DOSDataStr += "\nIntegration data of integration line\n" +
+                        intColorName(i);
           DOSDataStr += "\n# <integration> <energies>\n";
-          for (size_t j=0; j < projintegration[i].size(); ++j) {
-          DOSDataStr += (QString().sprintf("%10.6f",
-                         projintegration[i][j]) + " " +
-                         QString().sprintf("%10.6f",
-                         projEnergies[i][j]) + "\n");
+          for (size_t j = 0; j < projIntegration[i].size(); ++j) {
+            DOSDataStr += (QString().sprintf("%10.6f", projIntegration[i][j]) +
+                           " " +
+                           QString().sprintf("%10.6f", projEnergies[i][j]) +
+                           "\n");
           }
         }
       }
