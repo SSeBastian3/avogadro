@@ -993,12 +993,6 @@ namespace Avogadro
                          i < projEnergies.size(); ++i) {
         smoothData(projDensities[i], projEnergies[i], m_eStep, m_broadening);
       }
-      for (size_t i = 0; i < projDensities.size(); ++i) {
-        double projxDiff = (projEnergies[i].size() > 1 ?
-                            projEnergies[i][1] - projEnergies[i][0] : 0.0);
-        projIntegration.append(integrateDataTrapezoidal(projxDiff,
-                                                        projDensities[i]));
-      }
 
       // Let's get the integration data for the total DOS as well
       // This assumes uniform spacing between the energy levels
@@ -1006,6 +1000,14 @@ namespace Avogadro
         double xDiff = (totalEnergies.size() > 1 ?
                         totalEnergies[1] - totalEnergies[0]: 0.0);
         integration = integrateDataTrapezoidal(xDiff, totalDensities);
+      }
+
+      // Integrate the PDOS data also
+      for (size_t i = 0; i < projDensities.size(); ++i) {
+        double projxDiff = (projEnergies[i].size() > 1 ?
+                            projEnergies[i][1] - projEnergies[i][0] : 0.0);
+        projIntegration.append(integrateDataTrapezoidal(projxDiff,
+                                                        projDensities[i]));
       }
     }
 
@@ -1100,46 +1102,49 @@ namespace Avogadro
       m_fermi = unadjustedFermi;
     }
 
-    // If we have the integration data, plot that as well. Make it blue.
-    if (integration.size() != 0) {
-      double maxVal = integration[integration.size() - 1];
+    // Before we do anything, find the max integration value
+    double maxIntegrationVal = 0.0;
+    if (!integration.empty())
+      maxIntegrationVal = integration.back();
+    for (size_t i = 0; i < projIntegration.size(); ++i) {
+      if (!projIntegration[i].empty() &&
+          maxIntegrationVal < projIntegration[i].back()) {
+        maxIntegrationVal = projIntegration[i].back();
+      }
+    }
+
+    // If we have the total DOS integration data, plot it and make it blue.
+    if (!integration.empty()) {
       PlotObject *tempPo = new PlotObject(Qt::blue, PlotObject::Lines);
       tempPo->linePen().setWidth(2);
       for (size_t i = 0; i < integration.size(); ++i) {
-        tempPo->addPoint(QPointF(integration[i] / maxVal * max_x,
+        tempPo->addPoint(QPointF(integration[i] / maxIntegrationVal * max_x,
                                  totalEnergies[i]));
       }
       pw->addPlotObject(tempPo);
-      // Now let's add a label for it and use secondary axes
-      pw->setSecondaryLimits(0, qRound(maxVal), min_y, max_y);
+    }
+
+    // Remove all empty lists
+    projIntegration.removeAll(QList<double>());
+    for (size_t i = 0; i < projIntegration.size(); ++i) {
+      PlotObject *tempPo = new PlotObject(intColor(i), PlotObject::Lines);
+      tempPo->linePen().setWidth(2);
+      for (size_t j = 0; j < projIntegration[i].size(); ++j) {
+        tempPo->addPoint(QPointF(projIntegration[i][j] /
+                                 maxIntegrationVal * max_x,
+                                 projEnergies[i][j]));
+      }
+      pw->addPlotObject(tempPo);
+    }
+
+    // If we had either integration data or projIntegration data, set the
+    // upper axis for integration
+    if (!integration.empty() || !projIntegration.empty()) {
+      pw->setSecondaryLimits(0, qRound(maxIntegrationVal), min_y, max_y);
       pw->axis(PlotWidget::TopAxis)->setLabel(tr("Integration (# electrons)"));
       pw->axis(PlotWidget::TopAxis)->setVisible(true);
       pw->axis(PlotWidget::TopAxis)->setTickLabelsShown(true);
       pw->setTopPadding(60);
-    }
-
-    for (size_t i = 0; i < projIntegration.size(); ++i) {
-      if (!projIntegration[i].empty()) {
-        double maxVal = projIntegration[i].back();
-
-        PlotObject *tempPo = new PlotObject(intColor(i), PlotObject::Lines);
-        tempPo->linePen().setWidth(2);
-
-        for (size_t j = 0; j < projIntegration[i].size(); ++j) {
-          tempPo->addPoint(QPointF(projIntegration[i][j] / maxVal * max_x,
-                                   projEnergies[i][j]));
-        }
-
-        pw->addPlotObject(tempPo);
-
-        // Now let's add a label for it and use secondary axes
-        pw->setSecondaryLimits(0, qRound(maxVal), min_y, max_y);
-        pw->axis(PlotWidget::TopAxis)->setLabel(
-          tr("Integration (# electrons)"));
-        pw->axis(PlotWidget::TopAxis)->setVisible(true);
-        pw->axis(PlotWidget::TopAxis)->setTickLabelsShown(true);
-        pw->setTopPadding(60);
-      }
     }
 
     pw->addPlotObject(po);
