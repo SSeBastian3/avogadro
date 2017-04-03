@@ -64,6 +64,7 @@ namespace Avogadro
       m_bandNumKPoints(40),
       m_dosKPoints("15x15x15"),
       m_projDOSTitles(QStringList()),
+      m_integratePDOS(false),
       m_useSmoothing(true),
       m_eStep(0.1),
       m_broadening(0.1),
@@ -184,6 +185,7 @@ namespace Avogadro
 
     settings.beginGroup("DOS");
     settings.setValue("dosKPoints", m_dosKPoints);
+    settings.setValue("integratePDOS", m_integratePDOS);
     settings.setValue("useSmoothing", m_useSmoothing);
     settings.setValue("eStep", m_eStep);
     settings.setValue("broadening", m_broadening);
@@ -218,6 +220,7 @@ namespace Avogadro
 
     settings.beginGroup("DOS");
     m_dosKPoints = settings.value("dosKPoints", m_dosKPoints).toString();
+    m_integratePDOS = settings.value("integratePDOS", m_integratePDOS).toBool();
     m_useSmoothing = settings.value("useSmoothing", m_useSmoothing).toBool();
     m_eStep = settings.value("eStep", m_eStep).toDouble();
     m_broadening = settings.value("broadening", m_broadening).toDouble();
@@ -233,7 +236,7 @@ namespace Avogadro
                                      QString::SkipEmptyParts);
     bool zhegvErrorFound = false;
 
-    for (size_t i = 0; i < lines.size(); ++i) {
+    for (int i = 0; i < lines.size(); ++i) {
       // This usually means that ZHEGV failed
       if (lines[i].contains("ERROR: Problems in the diagonalization, try") &&
           !zhegvErrorFound) {
@@ -307,9 +310,9 @@ namespace Avogadro
       return;
     }
 
-    size_t numKPoints = kpoints.size();
-    size_t numOrbitals = bands.size();
-    size_t numSpecialKPoints = specialKPoints.size();
+    int numKPoints = kpoints.size();
+    int numOrbitals = bands.size();
+    int numSpecialKPoints = specialKPoints.size();
 
     // If there is only one special k point, there is nothing to graph. Just
     // return.
@@ -330,11 +333,11 @@ namespace Avogadro
     // Points in each inner vector of bands
     QVector<QVector<QPointF> > points;
 
-    for (size_t i = 0; i < numOrbitals; ++i) {
+    for (int i = 0; i < numOrbitals; ++i) {
       QVector<QPointF> energies;
       // Keep track of the distance we have gone thus far
       double distanceSoFar = 0.0;
-      for (size_t j = 0; j < numKPoints; ++j) {
+      for (int j = 0; j < numKPoints; ++j) {
         if (j != 0)
           distanceSoFar += distance(kpoints[j - 1], kpoints[j]);
 
@@ -359,7 +362,7 @@ namespace Avogadro
     QList<double> kpointlabels_x;
     QStringList kpointlabels;
     double distanceSoFar = 0.0;
-    for (size_t i = 0; i < numSpecialKPoints; ++i) {
+    for (int i = 0; i < numSpecialKPoints; ++i) {
       if (i != 0)
         distanceSoFar += distance(specialKPoints[i - 1], specialKPoints[i]);
 
@@ -399,9 +402,9 @@ namespace Avogadro
     pw->setForegroundColor(Qt::black);
 
     // Add the objects
-    for (size_t i = 0; i < numOrbitals; ++i) {
+    for (int i = 0; i < numOrbitals; ++i) {
       PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
-      for (size_t j = 0; j < numKPoints; ++j) {
+      for (int j = 0; j < numKPoints; ++j) {
         po->addPoint(points[i][j].x(), points[i][j].y());
       }
       // Add the object to the widget
@@ -435,9 +438,9 @@ namespace Avogadro
       bandDataStr += "# Special k points\n";
       bandDataStr += "# <symbol> <x> <y> <z> <k space distance (x)>\n";
 
-      for (size_t i = 0; i < specialKPoints.size(); ++i) {
+      for (int i = 0; i < specialKPoints.size(); ++i) {
         bandDataStr += (QString("# ") + specialKPoints[i].label + " ");
-        for (size_t j = 0; j < 3; ++j)
+        for (int j = 0; j < 3; ++j)
           bandDataStr += (QString().sprintf("%6.2f",
                                             specialKPoints[i].coords[j]) + " ");
         bandDataStr += (QString().sprintf("%6.2f", kpointlabels_x[i]) + "\n");
@@ -448,12 +451,12 @@ namespace Avogadro
                       "<band 2 energies> <etc.>\n");
 
       distanceSoFar = 0.0;
-      for (size_t i = 0; i < numKPoints; ++i) {
+      for (int i = 0; i < numKPoints; ++i) {
         if (i != 0)
           distanceSoFar += distance(kpoints[i - 1], kpoints[i]);
         double x = distanceSoFar;
         bandDataStr += (QString().sprintf("%10.6f", x) + " ");
-        for (size_t j = 0; j < numOrbitals; ++j) {
+        for (int j = 0; j < numOrbitals; ++j) {
           // Unfortunately, these are accessed out of order here...
           bandDataStr += (QString().sprintf("%10.6f", bands[j][i]) + " ");
         }
@@ -558,7 +561,7 @@ namespace Avogadro
 
     // If we need to zero the Fermi energy, go ahead and do that
     if (fermiFound && m_zeroFermi) {
-      for (size_t i = 0; i < energies.size(); ++i)
+      for (int i = 0; i < energies.size(); ++i)
         energies[i] -= unadjustedFermi;
     }
 
@@ -580,7 +583,7 @@ namespace Avogadro
     double min_y = 1e300, max_y = -1e300;
     double min_x = 0.0, max_x = -1e300;
 
-    for (size_t i = 0; i < densities.size(); ++i) {
+    for (int i = 0; i < densities.size(); ++i) {
       // Correct the max_x, min_y, and max_y
       if (densities[i] > max_x)
         max_x = densities[i];
@@ -614,7 +617,7 @@ namespace Avogadro
 
     // Add the objects
     PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
-    for (size_t i = 0; i < densities.size(); ++i)
+    for (int i = 0; i < densities.size(); ++i)
       po->addPoint(QPointF(densities[i], energies[i]));
 
     // If we have the fermi energy, plot that as a dashed line
@@ -637,9 +640,9 @@ namespace Avogadro
 
     // If we have the integration data, plot that as well. Make it blue.
     if (integration.size() != 0) {
-      double maxVal = integration[integration.size() - 1];
+      double maxVal = integration.back();
       PlotObject *tempPo = new PlotObject(Qt::blue, PlotObject::Lines);
-      for (size_t i = 0; i < integration.size(); ++i) {
+      for (int i = 0; i < integration.size(); ++i) {
         tempPo->addPoint(QPointF(integration[i] / maxVal * max_x,
                                  energies[i]));
       }
@@ -696,7 +699,7 @@ namespace Avogadro
       // Now for the actual data
       DOSDataStr += "\n# <density (x)> <energy (y)>\n";
 
-      for (size_t i = 0; i < densities.size(), i < energies.size(); ++i) {
+      for (int i = 0; i < densities.size(), i < energies.size(); ++i) {
         DOSDataStr += (QString().sprintf("%10.6f", densities[i]) + " " +
                        QString().sprintf("%10.6f", energies[i]) + "\n");
       }
@@ -705,7 +708,7 @@ namespace Avogadro
       if (integration.size() != 0) {
         DOSDataStr += "\n\n# Integration Data:\n";
         DOSDataStr += "\n# <integration> <energies>\n";
-        for (size_t i = 0; i < energies.size(), i < integration.size(); ++i) {
+        for (int i = 0; i < energies.size(), i < integration.size(); ++i) {
           DOSDataStr += (QString().sprintf("%10.6f", integration[i]) + " " +
                          QString().sprintf("%10.6f", energies[i]) + "\n");
         }
@@ -736,8 +739,8 @@ namespace Avogadro
   {
     switch(i) {
     case 0:
-      // Cyan
-      return QColor(0, 255, 255);
+      // Blue
+      return QColor(0, 0, 255);
     case 1:
       // Dark green
       return QColor(0, 100, 0);
@@ -790,7 +793,7 @@ namespace Avogadro
   {
     switch(i) {
     case 0:
-      return "Cyan";
+      return "Blue";
     case 1:
       return "Dark green";
     case 2:
@@ -821,49 +824,6 @@ namespace Avogadro
       return "Salmon";
     default:
       // Return black if we are out of colors
-      return "Black";
-    }
-  }
-
-  //added these functions to distinguish different integration lines
-  inline QColor intColor(size_t i) {
-    switch(i) {
-    case 0:
-      return QColor(20, 20, 140); //Dark Blue
-    case 1:
-      return QColor(0, 150, 37); //Lighter Green
-    case 2:
-      return QColor(128, 0, 255); //Darker Purple
-    case 3:
-      return QColor(174, 173, 172); //Light Gray
-    case 4:
-      return QColor(224, 195, 37); //Gold
-    case 5:
-      return QColor(128, 195, 66); //Light Green
-    case 6:
-      return QColor(250, 80, 0); //some Orange
-    default:
-      return QColor(0, 0, 0); //Black
-    }
-  }
-
-  inline QString intColorName(size_t i) {
-    switch(i) {
-    case 0:
-      return "Dark Blue";
-    case 1:
-      return "Lighter Green";
-    case 2:
-      return "Darker Purple";
-    case 3:
-      return "Light Gray";
-    case 4:
-      return "Gold";
-    case 5:
-      return "Light Green";
-    case 6:
-      return "Some Orange";
-    default:
       return "Black";
     }
   }
@@ -961,7 +921,7 @@ namespace Avogadro
     }
 
     // Now check to make sure all the projected DOS datas are of the same size
-    for (size_t i = 0; i < projDensities.size(),i < projEnergies.size(); ++i) {
+    for (int i = 0; i < projDensities.size(),i < projEnergies.size(); ++i) {
       if (projDensities[i].size() != projEnergies[i].size()) {
         qDebug() << "Error in " << __FUNCTION__
                  << ": mismatched sizes in projected DOS data!";
@@ -971,10 +931,10 @@ namespace Avogadro
 
     // If we need to zero the Fermi energy, go ahead and do that
     if (fermiFound && m_zeroFermi) {
-      for (size_t i = 0; i < totalEnergies.size(); ++i)
+      for (int i = 0; i < totalEnergies.size(); ++i)
         totalEnergies[i] -= unadjustedFermi;
-      for (size_t i = 0; i < projEnergies.size(); ++i) {
-        for (size_t j = 0; j < projEnergies[i].size(); ++j)
+      for (int i = 0; i < projEnergies.size(); ++i) {
+        for (int j = 0; j < projEnergies[i].size(); ++j)
           projEnergies[i][j] -= unadjustedFermi;
       }
     }
@@ -989,8 +949,8 @@ namespace Avogadro
         smoothData(totalDensities, totalEnergies, m_eStep, m_broadening);
 
       // Now smooth the projected DOS data
-      for (size_t i = 0; i < projDensities.size(),
-                         i < projEnergies.size(); ++i) {
+      for (int i = 0; i < projDensities.size(),
+                      i < projEnergies.size(); ++i) {
         smoothData(projDensities[i], projEnergies[i], m_eStep, m_broadening);
       }
 
@@ -1003,11 +963,13 @@ namespace Avogadro
       }
 
       // Integrate the PDOS data also
-      for (size_t i = 0; i < projDensities.size(); ++i) {
-        double projxDiff = (projEnergies[i].size() > 1 ?
-                            projEnergies[i][1] - projEnergies[i][0] : 0.0);
-        projIntegration.append(integrateDataTrapezoidal(projxDiff,
-                                                        projDensities[i]));
+      if (m_integratePDOS) {
+        for (int i = 0; i < projDensities.size(); ++i) {
+          double projxDiff = (projEnergies[i].size() > 1 ?
+                              projEnergies[i][1] - projEnergies[i][0] : 0.0);
+          projIntegration.append(integrateDataTrapezoidal(projxDiff,
+                                                          projDensities[i]));
+        }
       }
     }
 
@@ -1017,7 +979,7 @@ namespace Avogadro
     double min_x = 0.0, max_x = -1e300;
 
     if (m_pdosDisplayTotalDOS) {
-      for (size_t i = 0; i < totalDensities.size(); ++i) {
+      for (int i = 0; i < totalDensities.size(); ++i) {
         // Correct the max_x, min_y, and max_y
         if (totalDensities[i] > max_x)
           max_x = totalDensities[i];
@@ -1028,9 +990,9 @@ namespace Avogadro
       }
     }
     else {
-      for (size_t i = 0; i < projDensities.size(),
+      for (int i = 0; i < projDensities.size(),
                          i < projEnergies.size(); ++i) {
-        for (size_t j = 0; j < projDensities[i].size(),
+        for (int j = 0; j < projDensities[i].size(),
                            j < projEnergies[i].size(); ++j) {
           // Correct the max_x, min_y, and max_y
           if (projDensities[i][j] > max_x)
@@ -1069,16 +1031,16 @@ namespace Avogadro
     PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
     po->linePen().setWidth(2);
     if (m_pdosDisplayTotalDOS) {
-      for (size_t i = 0; i < totalDensities.size(); ++i)
+      for (int i = 0; i < totalDensities.size(); ++i)
         po->addPoint(QPointF(totalDensities[i], totalEnergies[i]));
     }
 
     // Add the projected objects
-    for (size_t i = 0; i < projDensities.size(),
-                       i < projEnergies.size(); ++i) {
+    for (int i = 0; i < projDensities.size(),
+                    i < projEnergies.size(); ++i) {
       PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
       ppo->linePen().setWidth(2);
-      for (size_t j = 0; j < projDensities[i].size(); ++j)
+      for (int j = 0; j < projDensities[i].size(); ++j)
         ppo->addPoint(QPointF(projDensities[i][j], projEnergies[i][j]));
       pw->addPlotObject(ppo);
     }
@@ -1106,18 +1068,19 @@ namespace Avogadro
     double maxIntegrationVal = 0.0;
     if (!integration.empty())
       maxIntegrationVal = integration.back();
-    for (size_t i = 0; i < projIntegration.size(); ++i) {
+    for (int i = 0; i < projIntegration.size(); ++i) {
       if (!projIntegration[i].empty() &&
           maxIntegrationVal < projIntegration[i].back()) {
         maxIntegrationVal = projIntegration[i].back();
       }
     }
 
-    // If we have the total DOS integration data, plot it and make it blue.
+    // If we have the total DOS integration data, plot it and make it red
+    // but thinner.
     if (!integration.empty()) {
-      PlotObject *tempPo = new PlotObject(Qt::blue, PlotObject::Lines);
-      tempPo->linePen().setWidth(2);
-      for (size_t i = 0; i < integration.size(); ++i) {
+      PlotObject *tempPo = new PlotObject(Qt::red, PlotObject::Lines);
+      tempPo->linePen().setWidth(1);
+      for (int i = 0; i < integration.size(); ++i) {
         tempPo->addPoint(QPointF(integration[i] / maxIntegrationVal * max_x,
                                  totalEnergies[i]));
       }
@@ -1126,9 +1089,9 @@ namespace Avogadro
 
     // Remove all empty lists
     projIntegration.removeAll(QList<double>());
-    for (size_t i = 0; i < projIntegration.size(); ++i) {
-      PlotObject *tempPo = new PlotObject(intColor(i), PlotObject::Lines);
-      tempPo->linePen().setWidth(2);
+    for (int i = 0; i < projIntegration.size(); ++i) {
+      PlotObject *tempPo = new PlotObject(color(i), PlotObject::Lines);
+      tempPo->linePen().setWidth(1);
       for (size_t j = 0; j < projIntegration[i].size(); ++j) {
         tempPo->addPoint(QPointF(projIntegration[i][j] /
                                  maxIntegrationVal * max_x,
@@ -1195,7 +1158,7 @@ namespace Avogadro
         DOSDataStr += "\n# Total DOS Data\n";
         DOSDataStr += "# <density (x)> <energy (y)>\n";
 
-        for (size_t i = 0; i < totalDensities.size(),
+        for (int i = 0; i < totalDensities.size(),
                            i < totalEnergies.size(); ++i) {
           DOSDataStr += (QString().sprintf("%10.6f", totalDensities[i]) + " " +
                          QString().sprintf("%10.6f", totalEnergies[i]) + "\n");
@@ -1203,24 +1166,24 @@ namespace Avogadro
 
         // If we have integration data, add that too
         if (integration.size() != 0) {
-          DOSDataStr += "\n\n# Integration Data:\n";
+          DOSDataStr += "\n\n# Total DOS Integration Data:\n";
           DOSDataStr += "\n# <integration> <energies>\n";
-          for (size_t i = 0; i < totalEnergies.size(),
+          for (int i = 0; i < totalEnergies.size(),
                              i < integration.size(); ++i) {
             DOSDataStr += (QString().sprintf("%10.6f", integration[i]) + " " +
                            QString().sprintf("%10.6f",
                                              totalEnergies[i]) + "\n");
           }
         }
-
       }
+
       DOSDataStr += "\n\n# Projected DOS Data\n";
-      for (size_t i = 0; i < projDensities.size(),
-                         i < projEnergies.size(); ++i) {
+      for (int i = 0; i < projDensities.size(),
+                      i < projEnergies.size(); ++i) {
         DOSDataStr += (QString("\n# ") + m_projDOSTitles[i]);
         DOSDataStr += "\n# <density (x)> <energy (y)>\n";
-        for (size_t j = 0; j < projDensities[i].size(),
-                           j < projEnergies[i].size(); ++j) {
+        for (int j = 0; j < projDensities[i].size(),
+                        j < projEnergies[i].size(); ++j) {
           DOSDataStr += (QString().sprintf("%10.6f", projDensities[i][j]) +
                          " " + QString().sprintf("%10.6f",
                                                  projEnergies[i][j]) + "\n");
@@ -1228,12 +1191,14 @@ namespace Avogadro
       }
 
       if (!projIntegration.empty()) {
-        DOSDataStr += "\n\n# Integration Data:\n";
-        for (size_t i = 0; i < projIntegration.size(); ++i) {
-          DOSDataStr += "\nIntegration data of integration line\n" +
-                        intColorName(i);
+        DOSDataStr += "\n\n# Projected DOS Integration Data:\n";
+        for (int i = 0; i < projIntegration.size(); ++i) {
+          DOSDataStr += "\n# Integration data of ";
+          DOSDataStr += (i < m_projDOSTitles.size() ?
+                         m_projDOSTitles[i] : "Unknown\n");
+
           DOSDataStr += "\n# <integration> <energies>\n";
-          for (size_t j = 0; j < projIntegration[i].size(); ++j) {
+          for (int j = 0; j < projIntegration[i].size(); ++j) {
             DOSDataStr += (QString().sprintf("%10.6f", projIntegration[i][j]) +
                            " " +
                            QString().sprintf("%10.6f", projEnergies[i][j]) +
@@ -1262,13 +1227,17 @@ namespace Avogadro
     // Now let's create the text legend
     QString legendStr;
     if (m_pdosDisplayTotalDOS)
-      legendStr += "Total: Red\n";
+      legendStr += "Total: Red (the thinner red line is the integration)\n";
 
-    for (size_t i = 0; i < m_projDOSTitles.size(); ++i) {
+    for (int i = 0; i < m_projDOSTitles.size(); ++i) {
       if (m_projDOSTitles[i].trimmed().isEmpty())
         m_projDOSTitles[i] = "Unnamed";
       legendStr += m_projDOSTitles[i] + ": " + colorName(i) + "\n";
     }
+
+    if (m_integratePDOS)
+      legendStr += "\nIntegration lines are the same color as their "
+                   "corresponding PDOS curves but are thinner.";
 
     QDialog* dialog = new QDialog;
     QVBoxLayout* layout = new QVBoxLayout;
@@ -1357,7 +1326,7 @@ namespace Avogadro
     }
 
     // Now check to make sure all the COOP datas are of the same size
-    for (size_t i = 0; i < coops.size(), i < energies.size(); ++i) {
+    for (int i = 0; i < coops.size(), i < energies.size(); ++i) {
       if (coops[i].size() != energies[i].size()) {
         qDebug() << "Error in " << __FUNCTION__
                  << ": mismatched sizes in COOP data!";
@@ -1367,8 +1336,8 @@ namespace Avogadro
 
     // If we need to zero the Fermi energy, go ahead and do that
     if (fermiFound && m_zeroFermi) {
-      for (size_t i = 0; i < energies.size(); ++i) {
-        for (size_t j = 0; j < energies[i].size(); ++j)
+      for (int i = 0; i < energies.size(); ++i) {
+        for (int j = 0; j < energies[i].size(); ++j)
           energies[i][j] -= unadjustedFermi;
       }
     }
@@ -1380,7 +1349,7 @@ namespace Avogadro
     if (m_useSmoothing) {
 
       // Now smooth the COOP data
-      for (size_t i = 0; i < coops.size(),
+      for (int i = 0; i < coops.size(),
                          i < energies.size(); ++i) {
         smoothData(coops[i], energies[i], m_eStep, m_broadening);
       }
@@ -1398,10 +1367,10 @@ namespace Avogadro
     double min_y = 1e300, max_y = -1e300;
     double min_x = 1e300, max_x = -1e300;
 
-    for (size_t i = 0; i < coops.size(),
-                       i < energies.size(); ++i) {
-      for (size_t j = 0; j < coops[i].size(),
-                         j < energies[i].size(); ++j) {
+    for (int i = 0; i < coops.size(),
+                    i < energies.size(); ++i) {
+      for (int j = 0; j < coops[i].size(),
+                      j < energies[i].size(); ++j) {
         // Correct the min_x, max_x, min_y, and max_y
         if (coops[i][j] < min_x)
           min_x = coops[i][j];
@@ -1448,7 +1417,7 @@ namespace Avogadro
                        i < energies.size(); ++i) {
       PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
       ppo->linePen().setWidth(1);
-      for (size_t j = 0; j < coops[i].size(); ++j)
+      for (int j = 0; j < coops[i].size(); ++j)
         ppo->addPoint(QPointF(coops[i][j], energies[i][j]));
       pw->addPlotObject(ppo);
     }
@@ -1507,12 +1476,12 @@ namespace Avogadro
 
       // Now for the actual data
       COOPDataStr += "\n\n# COOP Data\n";
-      for (size_t i = 0; i < coops.size(),
-                         i < energies.size(); ++i) {
+      for (int i = 0; i < coops.size(),
+                      i < energies.size(); ++i) {
         COOPDataStr += (QString("\n# ") + titles[i]);
         COOPDataStr += "\n# <COOP (x)> <energy (y)>\n";
-        for (size_t j = 0; j < coops[i].size(),
-                           j < energies[i].size(); ++j) {
+        for (int j = 0; j < coops[i].size(),
+                        j < energies[i].size(); ++j) {
           COOPDataStr += (QString().sprintf("%10.6f", coops[i][j]) +
                           " " + QString().sprintf("%10.6f",
                                                   energies[i][j]) + "\n");
@@ -1539,7 +1508,7 @@ namespace Avogadro
     // Now let's create the text legend
     QString legendStr;
 
-    for (size_t i = 0; i < titles.size(); ++i) {
+    for (int i = 0; i < titles.size(); ++i) {
       if (titles[i].trimmed().isEmpty())
         titles[i] = "Unnamed";
       legendStr += titles[i] + ": " + colorName(i) + "\n";
@@ -1598,8 +1567,8 @@ namespace Avogadro
     // This is the number of kpoints connecting each special k point
     input += (QString::number(m_bandNumKPoints) + "\n");
     // Num special k points
-    size_t numSK = specialKPointString.split(QRegExp("[\r\n]"),
-                                             QString::SkipEmptyParts).size();
+    int numSK = specialKPointString.split(QRegExp("[\r\n]"),
+                                          QString::SkipEmptyParts).size();
     input += (QString::number(numSK) + "\n"); // num special k points
     input += specialKPointString; // Add the whole string from user input
 
@@ -1630,7 +1599,7 @@ namespace Avogadro
     // through the rest of the algorithm if they cancel...
     QList<Atom*> atoms = m_molecule->atoms();
     std::vector<unsigned char> atomicNums;
-    for (size_t i = 0; i < atoms.size(); ++i)
+    for (int i = 0; i < atoms.size(); ++i)
       atomicNums.push_back(atoms[i]->atomicNumber());
     size_t numValElectrons = numValenceElectrons(atomicNums);
     size_t numKPoints = 0;
@@ -1690,7 +1659,7 @@ namespace Avogadro
     // through the rest of the algorithm if they cancel...
     QList<Atom*> atoms = m_molecule->atoms();
     std::vector<unsigned char> atomicNums;
-    for (size_t i = 0; i < atoms.size(); ++i)
+    for (int i = 0; i < atoms.size(); ++i)
       atomicNums.push_back(atoms[i]->atomicNumber());
     size_t numValElectrons = numValenceElectrons(atomicNums);
     size_t numKPoints = 0;
@@ -1698,8 +1667,8 @@ namespace Avogadro
     QString tempDOSKPoints = m_dosKPoints;
     YaehmopProjectedDOSDialog d;
     if (!d.getUserOptions(this, numValElectrons, numKPoints,
-                          tempDOSKPoints, m_projDOSTitles, projections,
-                          m_pdosDisplayTotalDOS, m_displayData,
+                          m_integratePDOS, tempDOSKPoints, m_projDOSTitles,
+                          projections, m_pdosDisplayTotalDOS, m_displayData,
                           m_useSmoothing, m_eStep, m_broadening, m_limitY,
                           m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
       return "";
@@ -1752,7 +1721,7 @@ namespace Avogadro
     QList<Atom*> atoms = m_molecule->atoms();
     std::vector<unsigned char> atomicNums;
     std::vector<std::string> atomicSymbols;
-    for (size_t i = 0; i < atoms.size(); ++i) {
+    for (int i = 0; i < atoms.size(); ++i) {
       atomicNums.push_back(atoms[i]->atomicNumber());
       atomicSymbols.push_back(OpenBabel::etab.GetSymbol(atomicNums[i]));
     }
@@ -1946,13 +1915,13 @@ namespace Avogadro
 
     QString input;
     input += "Geometry\n"; // Begin geometry section
-    size_t numAtoms = atoms.size();
+    int numAtoms = atoms.size();
     // Num atoms plus (numDimensions + 1) dummies.
     // Dummies are for defining the lattice
     input += (QString::number(numAtoms + m_numDimensions + 1) + QString("\n"));
 
     // Now loop through atom positions and add them
-    for (size_t i = 0; i < numAtoms; ++i) {
+    for (int i = 0; i < numAtoms; ++i) {
       QString symbol = OpenBabel::etab.GetSymbol(atoms[i]->atomicNumber());
       const Vector3d& pos = *atoms[i]->pos();
       input += (QString::number(i + 1) + " ");
@@ -2037,7 +2006,7 @@ namespace Avogadro
     }
 
     QList<double> integration;
-    for (size_t i = 0; i < y.size(); ++i) {
+    for (int i = 0; i < y.size(); ++i) {
       if (i == 0)
         continue;
 
@@ -2070,7 +2039,7 @@ namespace Avogadro
     QVector<double> finalDensities;
     QVector<double> finalEnergies;
 
-    size_t numPoints = densities.size();
+    int numPoints = densities.size();
     double pi = 3.14159265358979;
     // Normalization factor
     double normFact = 2.0 / sqrt(2.0 * pow(broadening, 2.0) * pi);
@@ -2091,7 +2060,7 @@ namespace Avogadro
       double density = 0;
 
       // Loop over all the points in the curve
-      for (size_t j = 0; j < numPoints; ++j){
+      for (int j = 0; j < numPoints; ++j){
         double diffE = pow(currE - energies[j], 2.0);
         //qDebug() << "diffE is " << QString::number(diffE);
         if (diffE <= 25.0) {
@@ -2111,6 +2080,42 @@ namespace Avogadro
     densities = finalDensities;
     energies = finalEnergies;
   }
+
+  // This is not currently being used, but in case we start in the future
+  /*
+  void YaehmopExtension::addDashedLine(const QVector<double>& xVals,
+                                       const QVector<double>& yVals,
+                                       PlotWidget* pw,
+                                       const QColor& color,
+                                       double lineWidth,
+                                       size_t numDashes)
+  {
+    int size = (xVals.size() < yVals.size() ? xVals.size() : yVals.size());
+
+    if (size == 0) {
+      qDebug() << "Error in" << __FUNCTION__ << ": data is empty!";
+      return;
+    }
+
+    if (!pw) {
+      qDebug() << "Error in" << __FUNCTION__ << ": plot widget is null!";
+      return;
+    }
+
+    // Calculate the spacing between neighboring data points
+    size_t spacing = size / (numDashes * 2);
+    if (spacing < 1)
+      spacing = 1;
+
+    for (size_t i = spacing; i < size; i += (spacing * 2)) {
+      PlotObject *tempPo = new PlotObject(color, PlotObject::Lines);
+      tempPo->linePen().setWidth(lineWidth);
+      tempPo->addPoint(QPointF(xVals[i - spacing], yVals[i - spacing]));
+      tempPo->addPoint(QPointF(xVals[i], yVals[i]));
+      pw->addPlotObject(tempPo);
+    }
+  }
+  */
 
   void YaehmopExtension::setMolecule(Molecule *molecule)
   {

@@ -48,6 +48,7 @@ namespace Avogadro {
   bool YaehmopProjectedDOSDialog::getUserOptions(YaehmopExtension* yext,
                                                  size_t& numValElectrons,
                                                  size_t& numKPoints,
+                                                 bool& integratePDOS,
                                                  QString& kPoints,
                                                  QStringList& titles,
                                                  QString& projections,
@@ -66,6 +67,7 @@ namespace Avogadro {
     titles.clear();
     m_ui->spin_numValElectrons->setValue(numValElectrons);
     m_ui->edit_kpoints->setText(kPoints);
+    m_ui->cb_integratePDOS->setChecked(integratePDOS);
     m_ui->cb_displayTotalDOS->setChecked(displayTotalDOS);
     m_ui->cb_displayData->setChecked(displayDOSData);
     m_ui->cb_useSmoothing->setChecked(useSmoothing);
@@ -284,6 +286,7 @@ namespace Avogadro {
     kPoints = lines.join("\n");
     titles = tmpTitles;
     projections = projList.join("\n");
+    integratePDOS = m_ui->cb_integratePDOS->isChecked();
     displayTotalDOS = m_ui->cb_displayTotalDOS->isChecked();
     displayDOSData = m_ui->cb_displayData->isChecked();
     useSmoothing = m_ui->cb_useSmoothing->isChecked();

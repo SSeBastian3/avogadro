@@ -47,6 +47,7 @@ public:
   // @param numValElectrons Will be set to the number of valence electrons.
   // @param numKPoints Will be set to the number of kpoints on success. It
   //                   will be zero on failure.
+  // @param integratePDOS Whether or not to integrate the PDOS
   // @param kpoints Will be set to the input string (x, y, z, weight for each
   //                k points) if it succeeds. It will be empty if the parsing
   //                does not succeed.
@@ -78,9 +79,9 @@ public:
 
   bool getUserOptions(YaehmopExtension* yext,
                       size_t& numValElectrons, size_t& numKPoints,
-                      QString& kPoints, QStringList& titles,
-                      QString& projections, bool& displayTotalDOS,
-                      bool& displayDOSData,
+                      bool& integratePDOS, QString& kPoints,
+                      QStringList& titles, QString& projections,
+                      bool& displayTotalDOS, bool& displayDOSData,
                       bool& useSmoothing, double& stepE,
                       double& broadening, bool& limitY,
                       double& minY, double& maxY, bool& zeroFermi,
