@@ -286,7 +286,8 @@ namespace Avogadro {
     kPoints = lines.join("\n");
     titles = tmpTitles;
     projections = projList.join("\n");
-    integratePDOS = m_ui->cb_integratePDOS->isChecked();
+    integratePDOS = m_ui->cb_integratePDOS->isEnabled() &&
+                    m_ui->cb_integratePDOS->isChecked();
     displayTotalDOS = m_ui->cb_displayTotalDOS->isChecked();
     displayDOSData = m_ui->cb_displayData->isChecked();
     useSmoothing = m_ui->cb_useSmoothing->isChecked();
