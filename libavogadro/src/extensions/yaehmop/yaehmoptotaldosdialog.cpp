@@ -36,17 +36,18 @@ namespace Avogadro {
     delete m_ui;
   }
 
-  bool YaehmopTotalDOSDialog::getNumValAndKPoints(YaehmopExtension* yext,
-                                                  size_t& numValElectrons,
-                                                  size_t& numKPoints,
-                                                  QString& kPoints,
-                                                  bool& displayDOSData,
-                                                  bool& useSmoothing,
-                                                  double& stepE,
-                                                  double& broadening,
-                                                  bool& limitY,
-                                                  double& minY, double& maxY,
-                                                  bool& zeroFermi)
+  bool YaehmopTotalDOSDialog::getUserOptions(YaehmopExtension* yext,
+                                             size_t& numValElectrons,
+                                             size_t& numKPoints,
+                                             QString& kPoints,
+                                             bool& displayDOSData,
+                                             bool& useSmoothing,
+                                             double& stepE,
+                                             double& broadening,
+                                             bool& limitY,
+                                             double& minY, double& maxY,
+                                             bool& zeroFermi,
+                                             unsigned short& numDimensions)
   {
     m_ui->spin_numValElectrons->setValue(numValElectrons);
     numKPoints = 0;
@@ -59,6 +60,10 @@ namespace Avogadro {
     m_ui->spin_minY->setValue(minY);
     m_ui->spin_maxY->setValue(maxY);
     m_ui->cb_zeroFermi->setChecked(zeroFermi);
+    if (numDimensions == 1)
+      m_ui->cb_1DSystem->setChecked(true);
+    else if (numDimensions == 2)
+      m_ui->cb_2DSystem->setChecked(true);
 
     if (this->exec() == QDialog::Rejected)
       return false;
@@ -177,6 +182,12 @@ namespace Avogadro {
     minY = m_ui->spin_minY->value();
     maxY = m_ui->spin_maxY->value();
     zeroFermi = m_ui->cb_zeroFermi->isChecked();
+    if (m_ui->cb_1DSystem->isChecked())
+      numDimensions = 1;
+    else if (m_ui->cb_2DSystem->isChecked())
+      numDimensions = 2;
+    else
+      numDimensions = 3;
 
     // We have to set this in here so we can keep the "text"
     yext->setDOSKPoints(text);
