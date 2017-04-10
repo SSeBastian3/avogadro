@@ -43,6 +43,7 @@
 #include "numvalenceelectrons.h"
 #include "yaehmopbanddialog.h"
 #include "yaehmopextension.h"
+#include "yaehmopprojecteddosdialog.h"
 #include "yaehmoptotaldosdialog.h"
 #include "yaehmopout.h"
 
@@ -61,9 +62,12 @@ namespace Avogadro
     : Extension(parent),
       m_bandNumKPoints(40),
       m_dosKPoints("15x15x15"),
+      m_projDOSTitles(QStringList()),
+      m_integratePDOS(false),
       m_useSmoothing(true),
       m_eStep(0.1),
       m_broadening(0.1),
+      m_pdosDisplayTotalDOS(false),
       m_displayData(false),
       m_limitY(false),
       m_minY(0.0),
@@ -91,6 +95,13 @@ namespace Avogadro
     action->setData(ActionIndex);
     m_actions.append(action);
     connect(action, SIGNAL(triggered()), SLOT(calculateTotalDOS()));
+
+    // create an action for our third action
+    action = new QAction( this );
+    action->setText( tr("Calculate Projected Density of States..."));
+    action->setData(ActionIndex);
+    m_actions.append(action);
+    connect(action, SIGNAL(triggered()), SLOT(calculateProjectedDOS()));
 
     action = new QAction( this );
     action->setText(tr("Set Parameters File..."));
@@ -150,6 +161,7 @@ namespace Avogadro
 
     settings.beginGroup("generic");
     settings.setValue("displayData", m_displayData);
+    settings.setValue("pdosDisplayTotalDOS", m_pdosDisplayTotalDOS);
     settings.setValue("limitY", m_limitY);
     settings.setValue("minY", m_minY);
     settings.setValue("maxY", m_maxY);
@@ -166,6 +178,7 @@ namespace Avogadro
 
     settings.beginGroup("DOS");
     settings.setValue("dosKPoints", m_dosKPoints);
+    settings.setValue("integratePDOS", m_integratePDOS);
     settings.setValue("useSmoothing", m_useSmoothing);
     settings.setValue("eStep", m_eStep);
     settings.setValue("broadening", m_broadening);
@@ -180,6 +193,8 @@ namespace Avogadro
 
     settings.beginGroup("generic");
     m_displayData = settings.value("displayData", m_displayData).toBool();
+    m_pdosDisplayTotalDOS = settings.value("pdosDisplayTotalDOS",
+                                           m_pdosDisplayTotalDOS).toBool();
     m_limitY = settings.value("limitY", m_limitY).toBool();
     m_minY = settings.value("minY", m_minY).toDouble();
     m_maxY = settings.value("maxY", m_minY).toDouble();
@@ -198,6 +213,7 @@ namespace Avogadro
 
     settings.beginGroup("DOS");
     m_dosKPoints = settings.value("dosKPoints", m_dosKPoints).toString();
+    m_integratePDOS = settings.value("integratePDOS", m_integratePDOS).toBool();
     m_useSmoothing = settings.value("useSmoothing", m_useSmoothing).toBool();
     m_eStep = settings.value("eStep", m_eStep).toDouble();
     m_broadening = settings.value("broadening", m_broadening).toDouble();
@@ -712,6 +728,525 @@ namespace Avogadro
     pw->show();
   }
 
+  inline QColor color(size_t i)
+  {
+    switch(i) {
+    case 0:
+      // Blue
+      return QColor(0, 0, 255);
+    case 1:
+      // Dark green
+      return QColor(0, 100, 0);
+    case 2:
+      // Purple
+      return QColor(128, 0, 128);
+    case 3:
+      // Light pink
+      return QColor(255, 182, 193);
+    case 4:
+      // Yellow
+      return QColor(255, 255, 0);
+    case 5:
+      // Lime green
+      return QColor(50, 205, 50);
+    case 6:
+      // Dark orange
+      return QColor(205, 102, 0);
+    case 7:
+      // Brown
+      return QColor(139, 69, 19);
+    case 8:
+      // Light gray
+      return QColor(150, 150, 150);
+    case 9:
+      // Dark blue
+      return QColor(0, 0, 139);
+    case 10:
+      // Black
+      return QColor(0, 0, 0);
+    case 11:
+      // Olive
+      return QColor(128, 128, 0);
+    case 12:
+      // Dark gray
+      return QColor(75, 75, 75);
+    case 13:
+      // Light blue
+      return QColor(173, 216, 230);
+    case 14:
+      // Salmon
+      return QColor(255, 140, 105);
+    default:
+      // Return black if we are out of colors
+      return QColor(0, 0, 0);
+    }
+  }
+
+  inline QString colorName(size_t i)
+  {
+    switch(i) {
+    case 0:
+      return "Blue";
+    case 1:
+      return "Dark green";
+    case 2:
+      return "Purple";
+    case 3:
+      return "Light pink";
+    case 4:
+      return "Yellow";
+    case 5:
+      return "Lime green";
+    case 6:
+      return "Dark orange";
+    case 7:
+      return "Brown";
+    case 8:
+      return "Light gray";
+    case 9:
+      return "Dark blue";
+    case 10:
+      return "Black";
+    case 11:
+      return "Olive";
+    case 12:
+      return "Dark gray";
+    case 13:
+      return "Light blue";
+    case 14:
+      return "Salmon";
+    default:
+      // Return black if we are out of colors
+      return "Black";
+    }
+  }
+
+  void YaehmopExtension::calculateProjectedDOS()
+  {
+    QString input = createYaehmopProjectedDOSInput();
+    // If the input is empty, either the user cancelled
+    // or an error box has already popped up...
+    if (input.isEmpty())
+      return;
+
+    QString output;
+
+    // Execute Yaehmop
+    if (!executeYaehmop(input, output)) {
+      qDebug() << "Error while executing Yaehmop in " <<  __FUNCTION__;
+      return;
+    }
+
+    QString error;
+    if (!checkForErrors(output, error)) {
+      QMessageBox::warning(NULL,
+                        tr("Yaehmop"),
+                        tr((QString("Data may be invalid. "
+                                    "Error received in calculation:\n")
+                            + error).toStdString().c_str()));
+      qDebug() << "Full Yaehmop output is as follows:\n" << output;
+      qDebug() << "Data may be invalid. Error received in calculation:\n" +
+                  error;
+    }
+
+    //qDebug() << "input is " << input;
+    //qDebug() << "output is " << output;
+
+    // First, let's get the fermi energy
+    bool fermiFound = true;
+    double unadjustedFermi, fermi = 0.0;
+    if (!YaehmopOut::getFermiLevelFromDOSData(output, unadjustedFermi)) {
+      qDebug() << "Fermi level could not be obtained in " << __FUNCTION__;
+      fermiFound = false;
+    }
+
+    if (!m_zeroFermi)
+      fermi = unadjustedFermi;
+
+    // Trim the output so it only contains the DOS
+    // Remove everything before TOTAL DENSITY OF STATES
+    int ind = output.indexOf("TOTAL DENSITY OF STATES");
+    if (ind == -1) {
+      qDebug() << "Error in " << __FUNCTION__ << ": DOS data not found in"
+               << "Yaehmop output!";
+      return;
+    }
+    output.remove(0, ind - 1);
+
+    // Remove everything after END OF DOS
+    ind = output.indexOf("END OF DOS");
+    if (ind == -1) {
+      qDebug() << "Error in " << __FUNCTION__ << ": DOS data did not"
+               << "complete in Yaehmop output!";
+      return;
+    }
+    output.remove(ind + QString("END OF DOS\n").size(), output.size());
+
+    //qDebug() << "After trimming, output is now:";
+    //qDebug() << output;
+
+    QVector<double> totalDensities;
+    QVector<double> totalEnergies;
+
+    // Try to read the DOS data if we are supposed to
+    if (m_pdosDisplayTotalDOS) {
+      if (!YaehmopOut::readTotalDOSData(output, totalDensities,
+                                        totalEnergies) ||
+          totalDensities.size() == 0 ||
+          totalEnergies.size() != totalDensities.size()) {
+        qDebug() << "Error in " << __FUNCTION__
+                 << ": failed to read total DOS data!";
+        return;
+      }
+    }
+
+    // Now to read projected DOS data
+    QVector<QVector<double> > projDensities;
+    QVector<QVector<double> > projEnergies;
+
+    if (!YaehmopOut::readProjDOSData(output, projDensities,
+                                     projEnergies) ||
+        projDensities.size() == 0 ||
+        projDensities.size() != projEnergies.size()) {
+      qDebug() << "Error in " << __FUNCTION__
+               << ": failed to read projected DOS data!";
+      return;
+    }
+
+    // Now check to make sure all the projected DOS datas are of the same size
+    for (int i = 0; i < projDensities.size(),i < projEnergies.size(); ++i) {
+      if (projDensities[i].size() != projEnergies[i].size()) {
+        qDebug() << "Error in " << __FUNCTION__
+                 << ": mismatched sizes in projected DOS data!";
+        return;
+      }
+    }
+
+    // If we need to zero the Fermi energy, go ahead and do that
+    if (fermiFound && m_zeroFermi) {
+      for (int i = 0; i < totalEnergies.size(); ++i)
+        totalEnergies[i] -= unadjustedFermi;
+      for (int i = 0; i < projEnergies.size(); ++i) {
+        for (int j = 0; j < projEnergies[i].size(); ++j)
+          projEnergies[i][j] -= unadjustedFermi;
+      }
+    }
+
+    // If we smooth data, this will be calculated
+    QList<double> integration;
+    QList<QList<double> > projIntegration;
+
+    // Let's smooth the data if we need to
+    if (m_useSmoothing) {
+      if (m_pdosDisplayTotalDOS)
+        smoothData(totalDensities, totalEnergies, m_eStep, m_broadening);
+
+      // Now smooth the projected DOS data
+      for (int i = 0; i < projDensities.size(),
+                      i < projEnergies.size(); ++i) {
+        smoothData(projDensities[i], projEnergies[i], m_eStep, m_broadening);
+      }
+
+      // Let's get the integration data for the total DOS as well
+      // This assumes uniform spacing between the energy levels
+      if (m_pdosDisplayTotalDOS) {
+        double xDiff = (totalEnergies.size() > 1 ?
+                        totalEnergies[1] - totalEnergies[0]: 0.0);
+        integration = integrateDataTrapezoidal(xDiff, totalDensities);
+      }
+
+      // Integrate the PDOS data also
+      if (m_integratePDOS) {
+        for (int i = 0; i < projDensities.size(); ++i) {
+          double projxDiff = (projEnergies[i].size() > 1 ?
+                              projEnergies[i][1] - projEnergies[i][0] : 0.0);
+          projIntegration.append(integrateDataTrapezoidal(projxDiff,
+                                                          projDensities[i]));
+        }
+      }
+    }
+
+    // Plotting is fairly simple - densities on x axis and energies on y
+    // These values are close to the limits of doubles
+    double min_y = 1e300, max_y = -1e300;
+    double min_x = 0.0, max_x = -1e300;
+
+    if (m_pdosDisplayTotalDOS) {
+      for (int i = 0; i < totalDensities.size(); ++i) {
+        // Correct the max_x, min_y, and max_y
+        if (totalDensities[i] > max_x)
+          max_x = totalDensities[i];
+        if (totalEnergies[i] < min_y)
+          min_y = totalEnergies[i];
+        if (totalEnergies[i] > max_y)
+          max_y = totalEnergies[i];
+      }
+    }
+    else {
+      for (int i = 0; i < projDensities.size(),
+                         i < projEnergies.size(); ++i) {
+        for (int j = 0; j < projDensities[i].size(),
+                           j < projEnergies[i].size(); ++j) {
+          // Correct the max_x, min_y, and max_y
+          if (projDensities[i][j] > max_x)
+            max_x = projDensities[i][j];
+          if (projEnergies[i][j] < min_y)
+            min_y = projEnergies[i][j];
+          if (projEnergies[i][j] > max_y)
+            max_y = projEnergies[i][j];
+        }
+      }
+    }
+
+    PlotWidget *pw = new PlotWidget;
+    pw->setWindowTitle(tr("Yaehmop Projected DOS"));
+
+    // Let's make our widget a reasonable size
+    pw->resize(500, 500);
+
+    // Set our limits for the plot
+    // If we are limiting y, then change min_y and max_y
+    if (m_limitY) {
+      min_y = m_minY;
+      max_y = m_maxY;
+    }
+    pw->setDefaultLimits(min_x, max_x, min_y, max_y);
+
+    // Set up our axes
+    pw->axis(PlotWidget::BottomAxis)->setLabel(tr("Density of States"));
+    pw->axis(PlotWidget::LeftAxis)->setLabel(tr("Energy (eV)"));
+
+    // White background
+    pw->setBackgroundColor(Qt::white);
+    pw->setForegroundColor(Qt::black);
+
+    // Add the objects
+    PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
+    po->linePen().setWidth(2);
+    if (m_pdosDisplayTotalDOS) {
+      for (int i = 0; i < totalDensities.size(); ++i)
+        po->addPoint(QPointF(totalDensities[i], totalEnergies[i]));
+    }
+
+    // Add the projected objects
+    for (int i = 0; i < projDensities.size(),
+                    i < projEnergies.size(); ++i) {
+      PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
+      ppo->linePen().setWidth(2);
+      for (int j = 0; j < projDensities[i].size(); ++j)
+        ppo->addPoint(QPointF(projDensities[i][j], projEnergies[i][j]));
+      pw->addPlotObject(ppo);
+    }
+
+    // If we have the fermi energy, plot that as a dashed line
+    if (fermiFound) {
+      size_t num = 75;
+      for (size_t i = 0; i < num; i += 2) {
+        PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
+        tempPo->linePen().setWidth(2);
+        tempPo->addPoint(QPointF(static_cast<double>(i) /
+                                 static_cast<double>(num) *
+                                 static_cast<double>(max_x), fermi));
+        tempPo->addPoint(QPointF(static_cast<double>(i + 1) /
+                                 static_cast<double>(num) *
+                                 static_cast<double>(max_x), fermi));
+        pw->addPlotObject(tempPo);
+
+      }
+      // Also set the unadjusted fermi level in memory
+      m_fermi = unadjustedFermi;
+    }
+
+    // Before we do anything, find the max integration value
+    double maxIntegrationVal = 0.0;
+    if (!integration.empty())
+      maxIntegrationVal = integration.back();
+    for (int i = 0; i < projIntegration.size(); ++i) {
+      if (!projIntegration[i].empty() &&
+          maxIntegrationVal < projIntegration[i].back()) {
+        maxIntegrationVal = projIntegration[i].back();
+      }
+    }
+
+    // If we have the total DOS integration data, plot it and make it red
+    // but thinner.
+    if (!integration.empty()) {
+      PlotObject *tempPo = new PlotObject(Qt::red, PlotObject::Lines);
+      tempPo->linePen().setWidth(1);
+      for (int i = 0; i < integration.size(); ++i) {
+        tempPo->addPoint(QPointF(integration[i] / maxIntegrationVal * max_x,
+                                 totalEnergies[i]));
+      }
+      pw->addPlotObject(tempPo);
+    }
+
+    // Remove all empty lists
+    projIntegration.removeAll(QList<double>());
+    for (int i = 0; i < projIntegration.size(); ++i) {
+      PlotObject *tempPo = new PlotObject(color(i), PlotObject::Lines);
+      tempPo->linePen().setWidth(1);
+      for (size_t j = 0; j < projIntegration[i].size(); ++j) {
+        tempPo->addPoint(QPointF(projIntegration[i][j] /
+                                 maxIntegrationVal * max_x,
+                                 projEnergies[i][j]));
+      }
+      pw->addPlotObject(tempPo);
+    }
+
+    // If we had either integration data or projIntegration data, set the
+    // upper axis for integration
+    if (!integration.empty() || !projIntegration.empty()) {
+      pw->setSecondaryLimits(0, qRound(maxIntegrationVal), min_y, max_y);
+      pw->axis(PlotWidget::TopAxis)->setLabel(tr("Integration (# electrons)"));
+      pw->axis(PlotWidget::TopAxis)->setVisible(true);
+      pw->axis(PlotWidget::TopAxis)->setTickLabelsShown(true);
+      pw->setTopPadding(60);
+    }
+
+    pw->addPlotObject(po);
+    pw->setAttribute(Qt::WA_DeleteOnClose);
+
+    // If we are to display DOS data, show that first
+    if (m_displayData) {
+      QString DOSDataStr;
+
+      // Show number of dimensions first
+      DOSDataStr += QString("# Number of dimensions: ") +
+                    QString::number(m_numDimensions) + "\n";
+
+      // Let's print the fermi energy
+      if (fermiFound)
+        DOSDataStr += QString("# Unadjusted Fermi level: ") +
+                      QString::number(unadjustedFermi) + "\n";
+      else
+        DOSDataStr += "# Fermi level not found!\n";
+
+// I am only using this commented out section for debug right now
+/*
+      // Add in k point info first
+      DOSDataStr += "\n# k points\n";
+      DOSDataStr += "# <x> <y> <z> <weight>\n";
+
+      QStringList inputSplit = input.split(QRegExp("[\r\n]"),
+                                           QString::SkipEmptyParts);
+
+      while (inputSplit.size() != 0 && !inputSplit[0].contains("k points"))
+        inputSplit.removeFirst();
+
+      for (size_t i = 0; i < inputSplit.size(); ++i) {
+        if (inputSplit[i].split(QRegExp(" "),
+                                QString::SkipEmptyParts).size() == 0) {
+          break;
+        }
+        if (inputSplit[i].split(QRegExp(" "),
+                                QString::SkipEmptyParts).size() != 4) {
+          continue;
+        }
+        DOSDataStr += QString("# ") + inputSplit[i] + "\n";
+      }
+*/
+
+      // Now for the actual data
+      if (m_pdosDisplayTotalDOS) {
+        DOSDataStr += "\n# Total DOS Data\n";
+        DOSDataStr += "# <density (x)> <energy (y)>\n";
+
+        for (int i = 0; i < totalDensities.size(),
+                           i < totalEnergies.size(); ++i) {
+          DOSDataStr += (QString().sprintf("%10.6f", totalDensities[i]) + " " +
+                         QString().sprintf("%10.6f", totalEnergies[i]) + "\n");
+        }
+
+        // If we have integration data, add that too
+        if (integration.size() != 0) {
+          DOSDataStr += "\n\n# Total DOS Integration Data:\n";
+          DOSDataStr += "\n# <integration> <energies>\n";
+          for (int i = 0; i < totalEnergies.size(),
+                             i < integration.size(); ++i) {
+            DOSDataStr += (QString().sprintf("%10.6f", integration[i]) + " " +
+                           QString().sprintf("%10.6f",
+                                             totalEnergies[i]) + "\n");
+          }
+        }
+      }
+
+      DOSDataStr += "\n\n# Projected DOS Data\n";
+      for (int i = 0; i < projDensities.size(),
+                      i < projEnergies.size(); ++i) {
+        DOSDataStr += (QString("\n# ") + m_projDOSTitles[i]);
+        DOSDataStr += "\n# <density (x)> <energy (y)>\n";
+        for (int j = 0; j < projDensities[i].size(),
+                        j < projEnergies[i].size(); ++j) {
+          DOSDataStr += (QString().sprintf("%10.6f", projDensities[i][j]) +
+                         " " + QString().sprintf("%10.6f",
+                                                 projEnergies[i][j]) + "\n");
+        }
+      }
+
+      if (!projIntegration.empty()) {
+        DOSDataStr += "\n\n# Projected DOS Integration Data:\n";
+        for (int i = 0; i < projIntegration.size(); ++i) {
+          DOSDataStr += "\n# Integration data of ";
+          DOSDataStr += (i < m_projDOSTitles.size() ?
+                         m_projDOSTitles[i] : "Unknown\n");
+
+          DOSDataStr += "\n# <integration> <energies>\n";
+          for (int j = 0; j < projIntegration[i].size(); ++j) {
+            DOSDataStr += (QString().sprintf("%10.6f", projIntegration[i][j]) +
+                           " " +
+                           QString().sprintf("%10.6f", projEnergies[i][j]) +
+                           "\n");
+          }
+        }
+      }
+
+      // Done! Let's make the dialog and show it.
+      QDialog* dialog = new QDialog;
+      QVBoxLayout* layout = new QVBoxLayout;
+      dialog->setLayout(layout);
+      dialog->setWindowTitle(tr("Yaehmop Projected DOS Results"));
+      QTextEdit* edit = new QTextEdit;
+      layout->addWidget(edit);
+      dialog->resize(500, 500);
+
+      // Show the user the output
+      edit->setText(DOSDataStr);
+
+      // Make sure this gets deleted upon closing
+      dialog->setAttribute(Qt::WA_DeleteOnClose);
+      dialog->show();
+    }
+
+    // Now let's create the text legend
+    QString legendStr;
+    if (m_pdosDisplayTotalDOS)
+      legendStr += "Total: Red (the thinner red line is the integration)\n";
+
+    for (int i = 0; i < m_projDOSTitles.size(); ++i) {
+      if (m_projDOSTitles[i].trimmed().isEmpty())
+        m_projDOSTitles[i] = "Unnamed";
+      legendStr += m_projDOSTitles[i] + ": " + colorName(i) + "\n";
+    }
+
+    if (m_integratePDOS)
+      legendStr += "\nIntegration lines are the same color as their "
+                   "corresponding PDOS curves but are thinner.";
+
+    QDialog* dialog = new QDialog;
+    QVBoxLayout* layout = new QVBoxLayout;
+    dialog->setLayout(layout);
+    dialog->setWindowTitle(tr("Yaehmop Projected DOS Color Legend"));
+    QTextEdit* edit = new QTextEdit;
+    layout->addWidget(edit);
+    dialog->resize(500, 500);
+    edit->setText(legendStr);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+
+    // Show the plot!
+    pw->show();
+  }
+
   QString YaehmopExtension::createYaehmopBandInput()
   {
     if (!m_molecule) {
@@ -817,6 +1352,69 @@ namespace Avogadro
     input += "k points\n";
     input += (QString::number(numKPoints) + "\n");
     input += tempDOSKPoints;
+
+    // We're done!
+    return input;
+  }
+
+  QString YaehmopExtension::createYaehmopProjectedDOSInput()
+  {
+    if (!m_molecule) {
+      qDebug() << "Error in " << __FUNCTION__ << ": the molecule is not set";
+      return "";
+    }
+
+    OpenBabel::OBUnitCell *cell = m_molecule->OBUnitCell();
+    if (!cell) {
+      QMessageBox::warning(NULL,
+                           tr("Avogadro"),
+                           tr("Cannot calculate projected DOS: no unit cell!"));
+      qDebug() << "Error in " << __FUNCTION__ << ": there is no unit cell";
+      return "";
+    }
+
+    // Let's get the k points from the user first so we don't have to run
+    // through the rest of the algorithm if they cancel...
+    QList<Atom*> atoms = m_molecule->atoms();
+    std::vector<unsigned char> atomicNums;
+    for (int i = 0; i < atoms.size(); ++i)
+      atomicNums.push_back(atoms[i]->atomicNumber());
+    size_t numValElectrons = numValenceElectrons(atomicNums);
+    size_t numKPoints = 0;
+    QString projections;
+    QString tempDOSKPoints = m_dosKPoints;
+    YaehmopProjectedDOSDialog d;
+    if (!d.getUserOptions(this, numValElectrons, numKPoints,
+                          m_integratePDOS, tempDOSKPoints, m_projDOSTitles,
+                          projections, m_pdosDisplayTotalDOS, m_displayData,
+                          m_useSmoothing, m_eStep, m_broadening, m_limitY,
+                          m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
+      return "";
+    }
+
+    // Proceed with the function
+    QString input;
+    input += "Title\n"; // Title
+
+    // Crystal geometry
+    input += createGeometryAndLatticeInput();
+
+    // Total DOS is calculated in an average properties calculation
+    input += "average properties\n";
+
+    // Unfortunately, we can't use justAverageE with projected DOS
+
+    // Now we need to input the number of valence electrons
+    input += "electrons\n";
+    input += (QString::number(numValElectrons) + "\n");
+
+    // k points!
+    input += "k points\n";
+    input += (QString::number(numKPoints) + "\n");
+    input += tempDOSKPoints;
+
+    // projections!
+    input += (QString("\n") + projections);
 
     // We're done!
     return input;

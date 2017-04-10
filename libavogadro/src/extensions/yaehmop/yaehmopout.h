@@ -65,6 +65,14 @@ public:
   static bool readTotalDOSData(const QString& data,
                                QVector<double>& densities,
                                QVector<double>& energies);
+
+  // Pass the yaehmop output in as 'data'. It is faster if this only contains
+  // the DOS data. It will save all projected densities and energies in order
+  // as @param densities and @param energies. Returns true if the read was
+  // successful, and false if the read failed.
+  static bool readProjDOSData(const QString& data,
+                              QVector<QVector<double> >& densities,
+                              QVector<QVector<double> >& energies);
 };
 
 #endif
