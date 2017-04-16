@@ -404,6 +404,7 @@ namespace Avogadro
     // Add the objects
     for (int i = 0; i < numOrbitals; ++i) {
       PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
+      po->linePen().setWidth(2);
       for (int j = 0; j < numKPoints; ++j) {
         po->addPoint(points[i][j].x(), points[i][j].y());
       }
@@ -617,8 +618,18 @@ namespace Avogadro
 
     // Add the objects
     PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
+    po->linePen().setWidth(2);
+
+    // Add an extra point at the beginning to make it go to the y axis
+    if (!energies.empty())
+      po->addPoint(QPointF(0, energies.front()));
+
     for (int i = 0; i < densities.size(); ++i)
       po->addPoint(QPointF(densities[i], energies[i]));
+
+    // Add an extra point at the end to make it go to the y axis
+    if (!energies.empty())
+      po->addPoint(QPointF(0, energies.back()));
 
     // If we have the fermi energy, plot that as a dashed line
     if (fermiFound) {
@@ -642,6 +653,7 @@ namespace Avogadro
     if (integration.size() != 0) {
       double maxVal = integration.back();
       PlotObject *tempPo = new PlotObject(Qt::blue, PlotObject::Lines);
+      tempPo->linePen().setWidth(2);
       for (int i = 0; i < integration.size(); ++i) {
         tempPo->addPoint(QPointF(integration[i] / maxVal * max_x,
                                  energies[i]));
@@ -1031,8 +1043,16 @@ namespace Avogadro
     PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
     po->linePen().setWidth(2);
     if (m_pdosDisplayTotalDOS) {
+      // Add an extra point at the beginning to make it go to the y axis
+      if (!totalEnergies.empty())
+        po->addPoint(QPointF(0, totalEnergies.front()));
+
       for (int i = 0; i < totalDensities.size(); ++i)
         po->addPoint(QPointF(totalDensities[i], totalEnergies[i]));
+
+      // Add an extra point at the end to make it go to the y axis
+      if (!totalEnergies.empty())
+        po->addPoint(QPointF(0, totalEnergies.back()));
     }
 
     // Add the projected objects
@@ -1040,8 +1060,18 @@ namespace Avogadro
                     i < projEnergies.size(); ++i) {
       PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
       ppo->linePen().setWidth(2);
+
+      // Add an extra point at the beginning to make it go to the y axis
+      if (!projEnergies[i].empty())
+        ppo->addPoint(QPointF(0, projEnergies[i].front()));
+
       for (int j = 0; j < projDensities[i].size(); ++j)
         ppo->addPoint(QPointF(projDensities[i][j], projEnergies[i][j]));
+
+      // Add an extra point at the end to make it go to the y axis
+      if (!projEnergies[i].empty())
+        ppo->addPoint(QPointF(0, projEnergies[i].back()));
+
       pw->addPlotObject(ppo);
     }
 
@@ -1408,17 +1438,28 @@ namespace Avogadro
     // Add a vertical line at x == 0
     PlotObject *po = new PlotObject(Qt::black, PlotObject::Lines);
     po->linePen().setWidth(1);
-    po->addPoint(QPointF(0.0, min_y));
-    po->addPoint(QPointF(0.0, max_y));
+    po->addPoint(QPointF(0, min_y));
+    po->addPoint(QPointF(0, max_y));
     pw->addPlotObject(po);
 
     // Add the COOP objects
     for (size_t i = 0; i < coops.size(),
                        i < energies.size(); ++i) {
       PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
-      ppo->linePen().setWidth(1);
+      ppo->linePen().setWidth(2);
+
+      // Add an extra point at the beginning to make it go to the y axis
+      if (!energies[i].empty())
+        ppo->addPoint(QPointF(0, energies[i].front()));
+
+      // Add the actual points
       for (int j = 0; j < coops[i].size(); ++j)
         ppo->addPoint(QPointF(coops[i][j], energies[i][j]));
+
+      // Add an extra point at the end to make it go to the y axis
+      if (!energies[i].empty())
+        ppo->addPoint(QPointF(0, energies[i].back()));
+
       pw->addPlotObject(ppo);
     }
 
