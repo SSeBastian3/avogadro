@@ -384,6 +384,9 @@ namespace Avogadro
     // Let's make our widget a reasonable size
     pw->resize(500, 500);
 
+    // Double the font size
+    pw->setFontSize(16);
+
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
     if (m_limitY) {
@@ -599,6 +602,9 @@ namespace Avogadro
 
     // Let's make our widget a reasonable size
     pw->resize(500, 500);
+
+    // Double the font size
+    pw->setFontSize(16);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -1023,6 +1029,9 @@ namespace Avogadro
     // Let's make our widget a reasonable size
     pw->resize(500, 500);
 
+    // Double the font size
+    pw->setFontSize(16);
+
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
     if (m_limitY) {
@@ -1418,6 +1427,9 @@ namespace Avogadro
 
     // Let's make our widget a reasonable size
     pw->resize(500, 500);
+
+    // Double the font size
+    pw->setFontSize(16);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
