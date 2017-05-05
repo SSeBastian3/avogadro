@@ -407,7 +407,9 @@ namespace Avogadro
     // Add the objects
     for (int i = 0; i < numOrbitals; ++i) {
       PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
-      po->linePen().setWidth(2);
+      QPen linePen(po->linePen());
+      linePen.setWidth(2);
+      po->setLinePen(linePen);
       for (int j = 0; j < numKPoints; ++j) {
         po->addPoint(points[i][j].x(), points[i][j].y());
       }
@@ -624,7 +626,9 @@ namespace Avogadro
 
     // Add the objects
     PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
-    po->linePen().setWidth(2);
+    QPen linePen(po->linePen());
+    linePen.setWidth(2);
+    po->setLinePen(linePen);
 
     // Add an extra point at the beginning to make it go to the y axis
     if (!energies.empty())
@@ -659,7 +663,9 @@ namespace Avogadro
     if (integration.size() != 0) {
       double maxVal = integration.back();
       PlotObject *tempPo = new PlotObject(Qt::blue, PlotObject::Lines);
-      tempPo->linePen().setWidth(2);
+      QPen linePen(po->linePen());
+      linePen.setWidth(2);
+      po->setLinePen(linePen);
       for (int i = 0; i < integration.size(); ++i) {
         tempPo->addPoint(QPointF(integration[i] / maxVal * max_x,
                                  energies[i]));
@@ -1050,7 +1056,9 @@ namespace Avogadro
 
     // Add the objects
     PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
-    po->linePen().setWidth(2);
+    QPen linePen(po->linePen());
+    linePen.setWidth(2);
+    po->setLinePen(linePen);
     if (m_pdosDisplayTotalDOS) {
       // Add an extra point at the beginning to make it go to the y axis
       if (!totalEnergies.empty())
@@ -1068,7 +1076,9 @@ namespace Avogadro
     for (int i = 0; i < projDensities.size(),
                     i < projEnergies.size(); ++i) {
       PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
-      ppo->linePen().setWidth(2);
+      QPen linePen(po->linePen());
+      linePen.setWidth(2);
+      po->setLinePen(linePen);
 
       // Add an extra point at the beginning to make it go to the y axis
       if (!projEnergies[i].empty())
@@ -1089,7 +1099,9 @@ namespace Avogadro
       size_t num = 75;
       for (size_t i = 0; i < num; i += 2) {
         PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
-        tempPo->linePen().setWidth(2);
+        QPen linePen(po->linePen());
+        linePen.setWidth(2);
+        po->setLinePen(linePen);
         tempPo->addPoint(QPointF(static_cast<double>(i) /
                                  static_cast<double>(num) *
                                  static_cast<double>(max_x), fermi));
@@ -1118,7 +1130,9 @@ namespace Avogadro
     // but thinner.
     if (!integration.empty()) {
       PlotObject *tempPo = new PlotObject(Qt::red, PlotObject::Lines);
-      tempPo->linePen().setWidth(1);
+      QPen linePen(po->linePen());
+      linePen.setWidth(2);
+      po->setLinePen(linePen);
       for (int i = 0; i < integration.size(); ++i) {
         tempPo->addPoint(QPointF(integration[i] / maxIntegrationVal * max_x,
                                  totalEnergies[i]));
@@ -1130,7 +1144,9 @@ namespace Avogadro
     projIntegration.removeAll(QList<double>());
     for (int i = 0; i < projIntegration.size(); ++i) {
       PlotObject *tempPo = new PlotObject(color(i), PlotObject::Lines);
-      tempPo->linePen().setWidth(1);
+      QPen linePen(po->linePen());
+      linePen.setWidth(2);
+      po->setLinePen(linePen);
       for (size_t j = 0; j < projIntegration[i].size(); ++j) {
         tempPo->addPoint(QPointF(projIntegration[i][j] /
                                  maxIntegrationVal * max_x,
@@ -1449,7 +1465,9 @@ namespace Avogadro
 
     // Add a vertical line at x == 0
     PlotObject *po = new PlotObject(Qt::black, PlotObject::Lines);
-    po->linePen().setWidth(1);
+    QPen linePen(po->linePen());
+    linePen.setWidth(2);
+    po->setLinePen(linePen);
     po->addPoint(QPointF(0, min_y));
     po->addPoint(QPointF(0, max_y));
     pw->addPlotObject(po);
@@ -1458,7 +1476,9 @@ namespace Avogadro
     for (size_t i = 0; i < coops.size(),
                        i < energies.size(); ++i) {
       PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
-      ppo->linePen().setWidth(2);
+      QPen linePen(po->linePen());
+      linePen.setWidth(2);
+      po->setLinePen(linePen);
 
       // Add an extra point at the beginning to make it go to the y axis
       if (!energies[i].empty())
@@ -1496,7 +1516,9 @@ namespace Avogadro
 /*    if (integration.size() != 0) {
       double maxVal = integration[integration.size() - 1];
       PlotObject *tempPo = new PlotObject(Qt::blue, PlotObject::Lines);
-      tempPo->linePen().setWidth(2);
+      QPen linePen(po->linePen());
+      linePen.setWidth(2);
+      po->setLinePen(linePen);
       for (size_t i = 0; i < integration.size(); ++i) {
         tempPo->addPoint(QPointF(integration[i] / maxVal * max_x,
                                  totalEnergies[i]));
@@ -2162,7 +2184,9 @@ namespace Avogadro
 
     for (size_t i = spacing; i < size; i += (spacing * 2)) {
       PlotObject *tempPo = new PlotObject(color, PlotObject::Lines);
-      tempPo->linePen().setWidth(lineWidth);
+      QPen linePen(po->linePen());
+      linePen.setWidth(2);
+      po->setLinePen(linePen);
       tempPo->addPoint(QPointF(xVals[i - spacing], yVals[i - spacing]));
       tempPo->addPoint(QPointF(xVals[i], yVals[i]));
       pw->addPlotObject(tempPo);
