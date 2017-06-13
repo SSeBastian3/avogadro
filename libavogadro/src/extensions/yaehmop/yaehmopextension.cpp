@@ -147,19 +147,56 @@ namespace Avogadro
     return 0;
   }
 
-  // Get the distance between two k points
-  static inline double distance(const kpoint& a, const kpoint& b)
+  // Get the distance between two 3-d points. T must have [0], [1], and [2]
+  // defined.
+  template<typename T>
+  static inline double distance(const T& a, const T& b)
   {
     return sqrt(pow(a[0] - b[0], 2.0) +
                 pow(a[1] - b[1], 2.0) +
                 pow(a[2] - b[2], 2.0));
   };
 
-  // Get the distance between two special k points
-  static inline double distance(const specialKPoint& a,
-                                const specialKPoint& b)
+  // Get the distance between two k points
+  static inline double kpointDistance(const Vector3d& a,
+                                      const Vector3d& b,
+                                      const Avogadro::Molecule* mol)
   {
-    return distance(a.coords, b.coords);
+    // We need to find the reciprocal space basis vectors, and we
+    // need to find the actual k point location in reciprocal space.
+    const OpenBabel::OBUnitCell* cell = mol->OBUnitCell();
+
+    // This shouldn't happen
+    if (!cell) {
+      qDebug() << "Error in " << __FUNCTION__ << ": there is no unit cell";
+      return 0.0;
+    }
+
+    using OpenBabel::vector3;
+    const std::vector<vector3>& latticeVecs = cell->GetCellVectors();
+
+    vector3 b1 = cross(latticeVecs[1], latticeVecs[2]);
+    vector3 b2 = cross(latticeVecs[2], latticeVecs[0]);
+    vector3 b3 = cross(latticeVecs[0], latticeVecs[1]);
+
+    // This is how VASP does it.
+    // If it's good enough for VASP, it's good enough for me!
+    double omega = latticeVecs[0][0] * b1[0] +
+                   latticeVecs[0][1] * b1[1] +
+                   latticeVecs[0][2] * b1[2];
+
+    b1 /= omega;
+    b2 /= omega;
+    b3 /= omega;
+
+    // Calculate the reciprocal points
+    const vector3& recA(a[0] * b1 +
+                        a[1] * b2 +
+                        a[2] * b3);
+    const vector3& recB(b[0] * b1 +
+                        b[1] * b2 +
+                        b[2] * b3);
+    return distance(recA, recB);
   }
 
   void YaehmopExtension::writeSettings(QSettings &settings) const
@@ -338,8 +375,10 @@ namespace Avogadro
       // Keep track of the distance we have gone thus far
       double distanceSoFar = 0.0;
       for (int j = 0; j < numKPoints; ++j) {
-        if (j != 0)
-          distanceSoFar += distance(kpoints[j - 1], kpoints[j]);
+        if (j != 0) {
+          distanceSoFar += kpointDistance(kpoints[j - 1], kpoints[j],
+                                          m_molecule);
+        }
 
         // x is k-point distance so far. y is energy
         double x = distanceSoFar;
@@ -363,8 +402,12 @@ namespace Avogadro
     QStringList kpointlabels;
     double distanceSoFar = 0.0;
     for (int i = 0; i < numSpecialKPoints; ++i) {
-      if (i != 0)
-        distanceSoFar += distance(specialKPoints[i - 1], specialKPoints[i]);
+      if (i != 0) {
+        distanceSoFar += kpointDistance(specialKPoints[i - 1].coords,
+                                        specialKPoints[i].coords,
+                                        m_molecule);
+
+      }
 
       // If we have it set exactly on the left or right axis, it won't
       // plot them. Move them just a tiny bit so that it will.
@@ -458,8 +501,10 @@ namespace Avogadro
 
       distanceSoFar = 0.0;
       for (int i = 0; i < numKPoints; ++i) {
-        if (i != 0)
-          distanceSoFar += distance(kpoints[i - 1], kpoints[i]);
+        if (i != 0) {
+          distanceSoFar += kpointDistance(kpoints[i - 1], kpoints[i],
+                                          m_molecule);
+        }
         double x = distanceSoFar;
         bandDataStr += (QString().sprintf("%10.6f", x) + " ");
         for (int j = 0; j < numOrbitals; ++j) {
