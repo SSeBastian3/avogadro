@@ -509,7 +509,8 @@ namespace Avogadro
         bandDataStr += (QString().sprintf("%10.6f", x) + " ");
         for (int j = 0; j < numOrbitals; ++j) {
           // Unfortunately, these are accessed out of order here...
-          bandDataStr += (QString().sprintf("%10.6f", bands[j][i]) + " ");
+          double energy = (m_zeroFermi ? bands[j][i] - m_fermi : bands[j][i]);
+          bandDataStr += (QString().sprintf("%10.6f", energy) + " ");
         }
         bandDataStr += "\n";
       }
