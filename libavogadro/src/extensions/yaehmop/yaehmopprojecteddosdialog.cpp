@@ -77,10 +77,8 @@ namespace Avogadro {
     m_ui->spin_minY->setValue(minY);
     m_ui->spin_maxY->setValue(maxY);
     m_ui->cb_zeroFermi->setChecked(zeroFermi);
-    if (numDimensions == 1)
-      m_ui->cb_1DSystem->setChecked(true);
-    if (numDimensions == 2)
-      m_ui->cb_2DSystem->setChecked(true);
+    m_ui->spin_numDim->setValue(numDimensions);
+
     displayAtomProjections();
 
     if (this->exec() == QDialog::Rejected)
@@ -303,12 +301,7 @@ namespace Avogadro {
     minY = m_ui->spin_minY->value();
     maxY = m_ui->spin_maxY->value();
     zeroFermi = m_ui->cb_zeroFermi->isChecked();
-    if (m_ui->cb_1DSystem->isChecked())
-      numDimensions = 1;
-    else if (m_ui->cb_2DSystem->isChecked())
-      numDimensions = 2;
-    else
-      numDimensions = 3;
+    numDimensions = m_ui->spin_numDim->value();
 
     // We have to set this in here so we can keep the "kpointsText"
     m_yext->setDOSKPoints(kpointsText);
