@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>566</width>
-    <height>602</height>
+    <height>607</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -334,8 +334,23 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <tabstops>
-  <tabstop>spin_minY</tabstop>
+  <tabstop>spin_numValElectrons</tabstop>
   <tabstop>edit_kpoints</tabstop>
+  <tabstop>edit_projections</tabstop>
+  <tabstop>push_displayAtomProj</tabstop>
+  <tabstop>cb_zeroFermi</tabstop>
+  <tabstop>push_displayOrbitalProj</tabstop>
+  <tabstop>cb_displayTotalDOS</tabstop>
+  <tabstop>push_displayDetailedOrbitalProj</tabstop>
+  <tabstop>cb_displayData</tabstop>
+  <tabstop>cb_useSmoothing</tabstop>
+  <tabstop>spin_energyStep</tabstop>
+  <tabstop>spin_broadening</tabstop>
+  <tabstop>cb_integratePDOS</tabstop>
+  <tabstop>cb_limitY</tabstop>
+  <tabstop>spin_minY</tabstop>
+  <tabstop>spin_maxY</tabstop>
+  <tabstop>spin_numDim</tabstop>
  </tabstops>
  <resources/>
  <connections>

@@ -310,8 +310,20 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <tabstops>
-  <tabstop>spin_minY</tabstop>
+  <tabstop>spin_numValElectrons</tabstop>
   <tabstop>edit_kpoints</tabstop>
+  <tabstop>edit_coops</tabstop>
+  <tabstop>push_viewAtomNumbers</tabstop>
+  <tabstop>cb_zeroFermi</tabstop>
+  <tabstop>push_viewOrbitalNumbers</tabstop>
+  <tabstop>cb_displayData</tabstop>
+  <tabstop>cb_useSmoothing</tabstop>
+  <tabstop>spin_energyStep</tabstop>
+  <tabstop>spin_broadening</tabstop>
+  <tabstop>cb_limitY</tabstop>
+  <tabstop>spin_minY</tabstop>
+  <tabstop>spin_maxY</tabstop>
+  <tabstop>spin_numDim</tabstop>
  </tabstops>
  <resources/>
  <connections>
