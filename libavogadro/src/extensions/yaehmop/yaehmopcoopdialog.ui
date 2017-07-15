@@ -45,6 +45,9 @@
    </item>
    <item row="8" column="0" colspan="2">
     <widget class="QPushButton" name="push_viewAtomNumbers">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display the numberings for the different atoms in the system.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
       <string>View Atom Numbers...</string>
      </property>
@@ -97,6 +100,9 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="9" column="0" colspan="2">
     <widget class="QPushButton" name="push_viewOrbitalNumbers">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display the numberings for the different orbitals in this system.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Warning: if you set a parameters file to be one that includes unoccupied orbitals, these orbital numberings may be off, and you may need to number them manually.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
       <string>View Orbital Numbers...</string>
      </property>
