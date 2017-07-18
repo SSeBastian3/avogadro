@@ -1980,7 +1980,9 @@ namespace Avogadro
     // Close the write channel
     p.closeWriteChannel();
 
-    if (!p.waitForFinished()) {
+    // Let's do a 5 minute timeout
+    int timeout = 300000;
+    if (!p.waitForFinished(timeout)) {
       QMessageBox::warning(NULL,
                         tr("Avogadro"),
                         tr("Error: Yaehmop failed to finish!"));
