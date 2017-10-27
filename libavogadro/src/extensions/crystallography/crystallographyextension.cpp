@@ -2440,7 +2440,9 @@ namespace Avogadro
            QMessageBox::Yes | QMessageBox::No,
            QMessageBox::Yes)
           == QMessageBox::Yes) {
-        return actionPerceiveSpacegroup();
+        actionSpgTolerance();
+        actionPerceiveSpacegroup();
+        return;
       }
       else {
         return;
@@ -2614,7 +2616,9 @@ namespace Avogadro
            QMessageBox::Yes | QMessageBox::No,
            QMessageBox::Yes)
           == QMessageBox::Yes) {
-        return actionSymmetrizeCrystal();
+        actionSpgTolerance();
+        actionSymmetrizeCrystal();
+        return;
       }
       else {
         return;
@@ -2629,7 +2633,9 @@ namespace Avogadro
            QMessageBox::Yes | QMessageBox::No,
            QMessageBox::Yes)
           == QMessageBox::Yes) {
-        return actionSymmetrizeCrystal();
+        actionSpgTolerance();
+        actionSymmetrizeCrystal();
+        return;
       }
       else {
         return;
@@ -2761,7 +2767,9 @@ namespace Avogadro
            QMessageBox::Yes | QMessageBox::No,
            QMessageBox::Yes)
           == QMessageBox::Yes) {
-        return actionPrimitiveReduce();
+        actionSpgTolerance();
+        actionPrimitiveReduce();
+        return;
       }
       else {
         return;
@@ -2796,7 +2804,9 @@ namespace Avogadro
            QMessageBox::Yes | QMessageBox::No,
            QMessageBox::Yes)
           == QMessageBox::Yes) {
-        return actionPrimitiveReduce();
+        actionSpgTolerance();
+        actionPrimitiveReduceStandard();
+        return;
       }
       else {
         return;
