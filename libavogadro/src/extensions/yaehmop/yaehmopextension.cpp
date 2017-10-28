@@ -430,6 +430,9 @@ namespace Avogadro
     // Double the font size
     pw->setFontSize(16);
 
+    // Use an axis width of 2
+    pw->setAxisWidth(2);
+
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
     if (m_limitY) {
@@ -653,6 +656,9 @@ namespace Avogadro
 
     // Double the font size
     pw->setFontSize(16);
+
+    // Use an axis width of 2
+    pw->setAxisWidth(2);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -1084,6 +1090,9 @@ namespace Avogadro
     // Double the font size
     pw->setFontSize(16);
 
+    // Use an axis width of 2
+    pw->setAxisWidth(2);
+
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
     if (m_limitY) {
@@ -1489,6 +1498,9 @@ namespace Avogadro
 
     // Double the font size
     pw->setFontSize(16);
+
+    // Use an axis width of 2
+    pw->setAxisWidth(2);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
