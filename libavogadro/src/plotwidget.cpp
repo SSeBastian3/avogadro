@@ -45,8 +45,8 @@
 #include "plotpoint.h"
 #include "plotobject.h"
 
-#define XPADDING 20
-#define YPADDING 20
+#define XPADDING 30
+#define YPADDING 35
 #define BIGTICKSIZE 10
 #define SMALLTICKSIZE 4
 #define TICKOFFSET 0
@@ -1622,7 +1622,7 @@ namespace Avogadro {
 
           //Draw ticklabel
           if ( a->areTickLabelsShown() ) {
-            QRect r( int(px) - BIGTICKSIZE, (int)-2*BIGTICKSIZE, 2*BIGTICKSIZE, BIGTICKSIZE );
+            QRect r( int(px) - BIGTICKSIZE, (int)(-2.6*BIGTICKSIZE), 2*BIGTICKSIZE, BIGTICKSIZE );
             p->drawText( r, Qt::AlignCenter | Qt::TextDontClip, a->tickLabel( xx ) );
           }
         }
@@ -1638,7 +1638,7 @@ namespace Avogadro {
 
       // Draw TopAxis Label
       if ( ! a->label().isEmpty() ) {
-        QRect r( 0, 0 - 2.5*YPADDING, d->pixRect.width(), YPADDING );
+        QRect r( 0, 0 - 2.85*YPADDING, d->pixRect.width(), YPADDING * 1.5 );
         p->drawText( r, Qt::AlignCenter, a->label() );
       }
     }  //End of TopAxis
@@ -1719,7 +1719,7 @@ namespace Avogadro {
         if ( px > 0 && px < d->pixRect.width() ) {
           if ( a->areTickLabelsShown() ) {
             p->setClipping(false);
-            QRect r( 0, 0, d->pixRect.width(), bottomPadding()/2 );
+            QRect r( 0, 0, d->pixRect.width(), bottomPadding()/1.5 );
 
             QLabel textLabel (a->tickLabel( xx ));
             textLabel.setGeometry(r);

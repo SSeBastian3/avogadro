@@ -428,10 +428,10 @@ namespace Avogadro
     pw->resize(500, 500);
 
     // Double the font size
-    pw->setFontSize(16);
+    pw->setFontSize(30);
 
-    // Use an axis width of 2
-    pw->setAxisWidth(2);
+    // Use an axis width of 3
+    pw->setAxisWidth(3);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -454,7 +454,7 @@ namespace Avogadro
     for (int i = 0; i < numOrbitals; ++i) {
       PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
       QPen linePen(po->linePen());
-      linePen.setWidth(2);
+      linePen.setWidth(4);
       po->setLinePen(linePen);
       for (int j = 0; j < numKPoints; ++j) {
         po->addPoint(points[i][j].x(), points[i][j].y());
@@ -469,6 +469,9 @@ namespace Avogadro
       size_t range = 75;
       for (size_t i = 0; i < range; i += 2) {
         PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
+        QPen pen(tempPo->linePen());
+        pen.setWidth(2);
+        tempPo->setLinePen(pen);
         double newRange = max_x - min_x;
         double x1 = (((i - min_x) * newRange) / range) + min_x;
         double x2 = (((i + 1 - min_x) * newRange) / range) + min_x;
@@ -655,10 +658,10 @@ namespace Avogadro
     pw->resize(500, 500);
 
     // Double the font size
-    pw->setFontSize(16);
+    pw->setFontSize(30);
 
-    // Use an axis width of 2
-    pw->setAxisWidth(2);
+    // Use an axis width of 3
+    pw->setAxisWidth(3);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -679,7 +682,7 @@ namespace Avogadro
     // Add the objects
     PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
     QPen linePen(po->linePen());
-    linePen.setWidth(2);
+    linePen.setWidth(4);
     po->setLinePen(linePen);
 
     // Add an extra point at the beginning to make it go to the y axis
@@ -698,6 +701,9 @@ namespace Avogadro
       size_t num = 75;
       for (size_t i = 0; i < num; i += 2) {
         PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
+        QPen pen(tempPo->linePen());
+        pen.setWidth(2);
+        tempPo->setLinePen(pen);
         tempPo->addPoint(QPointF(static_cast<double>(i) /
                                  static_cast<double>(num) *
                                  static_cast<double>(max_x), fermi));
@@ -716,7 +722,7 @@ namespace Avogadro
       double maxVal = integration.back();
       PlotObject *tempPo = new PlotObject(Qt::blue, PlotObject::Lines);
       QPen linePen(tempPo->linePen());
-      linePen.setWidth(2);
+      linePen.setWidth(4);
       tempPo->setLinePen(linePen);
       for (int i = 0; i < integration.size(); ++i) {
         tempPo->addPoint(QPointF(integration[i] / maxVal * max_x,
@@ -728,7 +734,7 @@ namespace Avogadro
       pw->axis(PlotWidget::TopAxis)->setLabel(tr("Integration (# electrons)"));
       pw->axis(PlotWidget::TopAxis)->setVisible(true);
       pw->axis(PlotWidget::TopAxis)->setTickLabelsShown(true);
-      pw->setTopPadding(60);
+      pw->setTopPadding(100);
     }
 
     pw->addPlotObject(po);
@@ -1088,10 +1094,10 @@ namespace Avogadro
     pw->resize(500, 500);
 
     // Double the font size
-    pw->setFontSize(16);
+    pw->setFontSize(30);
 
-    // Use an axis width of 2
-    pw->setAxisWidth(2);
+    // Use an axis width of 3
+    pw->setAxisWidth(3);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -1112,7 +1118,7 @@ namespace Avogadro
     // Add the objects
     PlotObject *po = new PlotObject(Qt::red, PlotObject::Lines);
     QPen linePen(po->linePen());
-    linePen.setWidth(2);
+    linePen.setWidth(4);
     po->setLinePen(linePen);
     if (m_pdosDisplayTotalDOS) {
       // Add an extra point at the beginning to make it go to the y axis
@@ -1132,7 +1138,7 @@ namespace Avogadro
                     i < projEnergies.size(); ++i) {
       PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
       QPen linePen(ppo->linePen());
-      linePen.setWidth(2);
+      linePen.setWidth(4);
       ppo->setLinePen(linePen);
 
       // Add an extra point at the beginning to make it go to the y axis
@@ -1154,6 +1160,9 @@ namespace Avogadro
       size_t num = 75;
       for (size_t i = 0; i < num; i += 2) {
         PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
+        QPen pen(tempPo->linePen());
+        pen.setWidth(2);
+        tempPo->setLinePen(pen);
         tempPo->addPoint(QPointF(static_cast<double>(i) /
                                  static_cast<double>(num) *
                                  static_cast<double>(max_x), fermi));
@@ -1183,7 +1192,7 @@ namespace Avogadro
     if (!integration.empty()) {
       PlotObject *tempPo = new PlotObject(Qt::red, PlotObject::Lines);
       QPen linePen(tempPo->linePen());
-      linePen.setWidth(1);
+      linePen.setWidth(2);
       tempPo->setLinePen(linePen);
       for (int i = 0; i < integration.size(); ++i) {
         tempPo->addPoint(QPointF(integration[i] / maxIntegrationVal * max_x,
@@ -1197,7 +1206,7 @@ namespace Avogadro
     for (int i = 0; i < projIntegration.size(); ++i) {
       PlotObject *tempPo = new PlotObject(color(i), PlotObject::Lines);
       QPen linePen(tempPo->linePen());
-      linePen.setWidth(1);
+      linePen.setWidth(2);
       tempPo->setLinePen(linePen);
       for (size_t j = 0; j < projIntegration[i].size(); ++j) {
         tempPo->addPoint(QPointF(projIntegration[i][j] /
@@ -1214,7 +1223,7 @@ namespace Avogadro
       pw->axis(PlotWidget::TopAxis)->setLabel(tr("Integration (# electrons)"));
       pw->axis(PlotWidget::TopAxis)->setVisible(true);
       pw->axis(PlotWidget::TopAxis)->setTickLabelsShown(true);
-      pw->setTopPadding(60);
+      pw->setTopPadding(100);
     }
 
     pw->addPlotObject(po);
@@ -1497,10 +1506,10 @@ namespace Avogadro
     pw->resize(500, 500);
 
     // Double the font size
-    pw->setFontSize(16);
+    pw->setFontSize(30);
 
-    // Use an axis width of 2
-    pw->setAxisWidth(2);
+    // Use an axis width of 3
+    pw->setAxisWidth(3);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -1521,7 +1530,7 @@ namespace Avogadro
     // Add a vertical line at x == 0
     PlotObject *po = new PlotObject(Qt::black, PlotObject::Lines);
     QPen linePen(po->linePen());
-    linePen.setWidth(1);
+    linePen.setWidth(2);
     po->setLinePen(linePen);
     po->addPoint(QPointF(0, min_y));
     po->addPoint(QPointF(0, max_y));
@@ -1532,7 +1541,7 @@ namespace Avogadro
                        i < energies.size(); ++i) {
       PlotObject *ppo = new PlotObject(color(i), PlotObject::Lines);
       QPen linePen(ppo->linePen());
-      linePen.setWidth(2);
+      linePen.setWidth(4);
       ppo->setLinePen(linePen);
 
       // Add an extra point at the beginning to make it go to the y axis
@@ -1556,6 +1565,9 @@ namespace Avogadro
       size_t range = 75;
       for (size_t i = 0; i < range; i += 2) {
         PlotObject *tempPo = new PlotObject(Qt::black, PlotObject::Lines);
+        QPen pen(tempPo->linePen());
+        pen.setWidth(2);
+        tempPo->setLinePen(pen);
         double newRange = max_x - min_x;
         double x1 = (((i - min_x) * newRange) / range) + min_x;
         double x2 = (((i + 1 - min_x) * newRange) / range) + min_x;
