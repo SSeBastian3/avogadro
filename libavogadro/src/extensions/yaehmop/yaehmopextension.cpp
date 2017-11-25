@@ -430,8 +430,8 @@ namespace Avogadro
     // Double the font size
     pw->setFontSize(30);
 
-    // Use an axis width of 3
-    pw->setAxisWidth(3);
+    // Use an axis width of 5
+    pw->setAxisWidth(5);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -660,8 +660,8 @@ namespace Avogadro
     // Double the font size
     pw->setFontSize(30);
 
-    // Use an axis width of 3
-    pw->setAxisWidth(3);
+    // Use an axis width of 5
+    pw->setAxisWidth(5);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -1096,8 +1096,8 @@ namespace Avogadro
     // Double the font size
     pw->setFontSize(30);
 
-    // Use an axis width of 3
-    pw->setAxisWidth(3);
+    // Use an axis width of 5
+    pw->setAxisWidth(5);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -1192,7 +1192,7 @@ namespace Avogadro
     if (!integration.empty()) {
       PlotObject *tempPo = new PlotObject(Qt::red, PlotObject::Lines);
       QPen linePen(tempPo->linePen());
-      linePen.setWidth(2);
+      linePen.setWidth(3);
       tempPo->setLinePen(linePen);
       for (int i = 0; i < integration.size(); ++i) {
         tempPo->addPoint(QPointF(integration[i] / maxIntegrationVal * max_x,
@@ -1206,7 +1206,7 @@ namespace Avogadro
     for (int i = 0; i < projIntegration.size(); ++i) {
       PlotObject *tempPo = new PlotObject(color(i), PlotObject::Lines);
       QPen linePen(tempPo->linePen());
-      linePen.setWidth(2);
+      linePen.setWidth(3);
       tempPo->setLinePen(linePen);
       for (size_t j = 0; j < projIntegration[i].size(); ++j) {
         tempPo->addPoint(QPointF(projIntegration[i][j] /
@@ -1508,8 +1508,8 @@ namespace Avogadro
     // Double the font size
     pw->setFontSize(30);
 
-    // Use an axis width of 3
-    pw->setAxisWidth(3);
+    // Use an axis width of 5
+    pw->setAxisWidth(5);
 
     // Set our limits for the plot
     // If we are limiting y, then change min_y and max_y
@@ -1530,7 +1530,7 @@ namespace Avogadro
     // Add a vertical line at x == 0
     PlotObject *po = new PlotObject(Qt::black, PlotObject::Lines);
     QPen linePen(po->linePen());
-    linePen.setWidth(2);
+    linePen.setWidth(3);
     po->setLinePen(linePen);
     po->addPoint(QPointF(0, min_y));
     po->addPoint(QPointF(0, max_y));
