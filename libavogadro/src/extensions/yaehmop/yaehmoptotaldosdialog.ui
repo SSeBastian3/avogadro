@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>508</width>
-    <height>429</height>
+    <height>454</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
      </property>
     </widget>
    </item>
-   <item row="15" column="2" colspan="2">
+   <item row="16" column="2" colspan="2">
     <widget class="QDoubleSpinBox" name="spin_maxY">
      <property name="enabled">
       <bool>false</bool>
@@ -49,7 +49,7 @@
      </property>
     </widget>
    </item>
-   <item row="18" column="1" colspan="3">
+   <item row="19" column="1" colspan="3">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -59,7 +59,7 @@
      </property>
     </widget>
    </item>
-   <item row="16" column="3">
+   <item row="17" column="3">
     <widget class="QSpinBox" name="spin_numDim">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The number of periodic dimensions.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If this is set to 1, the material will be periodic only along the A vector of the crystal.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If this is set to 2, the material will be periodic along both the A and B vectors of the crystal.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If this is set to 3, the material will be periodic along the A, B, and C vectors of the crystal.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -102,7 +102,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="16" column="2">
+   <item row="17" column="2">
     <widget class="QLabel" name="label_6">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The number of periodic dimensions.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If this is set to 1, the material will be periodic only along the A vector of the crystal.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If this is set to 2, the material will be periodic along both the A and B vectors of the crystal.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If this is set to 3, the material will be periodic along the A, B, and C vectors of the crystal.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -115,7 +115,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="8" column="2" colspan="2">
+   <item row="9" column="2" colspan="2">
     <widget class="QCheckBox" name="cb_useSmoothing">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to use Gaussian smoothing to smooth the data.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Smoothing is typically performed for density of states data.&lt;/p&gt;&lt;p&gt;Default: on&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -128,7 +128,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="10" column="2" colspan="2">
+   <item row="11" column="2" colspan="2">
     <widget class="QDoubleSpinBox" name="spin_energyStep">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The energy step size for Gaussian smoothing. &lt;/p&gt;&lt;p&gt;Default: 0.1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -159,7 +159,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="12" column="2" colspan="2">
+   <item row="13" column="2" colspan="2">
     <widget class="QCheckBox" name="cb_limitY">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Limit the y-range?&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -169,7 +169,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="7" column="2" colspan="2">
+   <item row="8" column="2" colspan="2">
     <widget class="QCheckBox" name="cb_displayData">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether or not to display the density of states data in a&lt;/p&gt;&lt;p&gt;pop-up box after the calculation finishes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Data may be copied and pasted into a separate file.&lt;/p&gt;&lt;p&gt;Default: off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -179,7 +179,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="11" column="0" colspan="2">
+   <item row="12" column="0" colspan="2">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Gaussian broadening:</string>
@@ -189,7 +189,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="15" column="0" colspan="2">
+   <item row="16" column="0" colspan="2">
     <widget class="QDoubleSpinBox" name="spin_minY">
      <property name="enabled">
       <bool>false</bool>
@@ -211,7 +211,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="10" column="0" colspan="2">
+   <item row="11" column="0" colspan="2">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Energy step size:</string>
@@ -228,7 +228,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="11" column="2" colspan="2">
+   <item row="12" column="2" colspan="2">
     <widget class="QDoubleSpinBox" name="spin_broadening">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gaussian broadening for Gaussian smoothing. The Gaussian broadening is the standard deviation.&lt;/p&gt;&lt;p&gt;Default: 0.1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -275,12 +275,20 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
+   <item row="7" column="2">
+    <widget class="QCheckBox" name="cb_displayYaehmopInput">
+     <property name="text">
+      <string>Display Yaehmop Input?</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>spin_numValElectrons</tabstop>
   <tabstop>edit_kpoints</tabstop>
   <tabstop>cb_zeroFermi</tabstop>
+  <tabstop>cb_displayYaehmopInput</tabstop>
   <tabstop>cb_displayData</tabstop>
   <tabstop>cb_useSmoothing</tabstop>
   <tabstop>spin_energyStep</tabstop>

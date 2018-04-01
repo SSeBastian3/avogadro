@@ -53,6 +53,7 @@ namespace Avogadro {
                                                  QStringList& titles,
                                                  QString& projections,
                                                  bool& displayTotalDOS,
+                                                 bool& displayYaehmopInput,
                                                  bool& displayDOSData,
                                                  bool& useSmoothing,
                                                  double& stepE,
@@ -69,6 +70,7 @@ namespace Avogadro {
     m_ui->edit_kpoints->setText(kPoints);
     m_ui->cb_integratePDOS->setChecked(integratePDOS);
     m_ui->cb_displayTotalDOS->setChecked(displayTotalDOS);
+    m_ui->cb_displayYaehmopInput->setChecked(displayYaehmopInput);
     m_ui->cb_displayData->setChecked(displayDOSData);
     m_ui->cb_useSmoothing->setChecked(useSmoothing);
     m_ui->spin_energyStep->setValue(stepE);
@@ -287,6 +289,7 @@ namespace Avogadro {
     integratePDOS = m_ui->cb_integratePDOS->isEnabled() &&
                     m_ui->cb_integratePDOS->isChecked();
     displayTotalDOS = m_ui->cb_displayTotalDOS->isChecked();
+    displayYaehmopInput = m_ui->cb_displayYaehmopInput->isChecked();
     displayDOSData = m_ui->cb_displayData->isChecked();
     useSmoothing = m_ui->cb_useSmoothing->isChecked();
     if (useSmoothing) {

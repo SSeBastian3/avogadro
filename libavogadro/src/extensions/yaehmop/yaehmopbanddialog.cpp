@@ -38,6 +38,7 @@ namespace Avogadro {
 
   bool YaehmopBandDialog::getUserOptions(Molecule* mol, size_t& numKPoints,
                                          QString& kPointInfo,
+                                         bool& displayYaehmopInput,
                                          bool& displayBandData, bool& limitY,
                                          double& minY, double& maxY,
                                          bool& plotFermi, double& fermi,
@@ -45,6 +46,7 @@ namespace Avogadro {
                                          unsigned short& numDimensions)
   {
     m_ui->spin_numKPoints->setValue(numKPoints);
+    m_ui->cb_displayYaehmopInput->setChecked(displayYaehmopInput);
     m_ui->cb_displayBandData->setChecked(displayBandData);
     m_ui->cb_limitY->setChecked(limitY);
     m_ui->spin_minY->setValue(minY);
@@ -97,6 +99,7 @@ namespace Avogadro {
     numKPoints = numKPointsVal;
     kPointInfo = text;
     displayBandData = m_ui->cb_displayBandData->isChecked();
+    displayYaehmopInput = m_ui->cb_displayYaehmopInput->isChecked();
     limitY = m_ui->cb_limitY->isChecked();
     minY = m_ui->spin_minY->value();
     maxY = m_ui->spin_maxY->value();

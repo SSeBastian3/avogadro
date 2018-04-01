@@ -75,7 +75,7 @@ public:
   bool getUserOptions(YaehmopExtension* yext,
                       size_t& numValElectrons, size_t& numKPoints,
                       QString& kPoints, QString& projections,
-                      bool& displayData,
+                      bool& displayYaehmopInput, bool& displayData,
                       bool& useSmoothing, double& stepE,
                       double& broadening, bool& limitY,
                       double& minY, double& maxY, bool& zeroFermi,

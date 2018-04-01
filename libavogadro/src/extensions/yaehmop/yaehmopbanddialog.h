@@ -64,7 +64,8 @@ public:
   // If the user checks the box to display band data, displayBandData
   // will be set to be true
   bool getUserOptions(Molecule* mol, size_t& numKPoints,
-                      QString& kPointInfo, bool& displayBandData,
+                      QString& kPointInfo, bool& displayYaehmopInput,
+                      bool& displayBandData,
                       bool& limitY, double& minY, double& maxY, bool& plotFermi,
                       double& fermi, bool& zeroFermi,
                       unsigned short& numDimensions);

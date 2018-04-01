@@ -40,6 +40,7 @@ namespace Avogadro {
                                              size_t& numValElectrons,
                                              size_t& numKPoints,
                                              QString& kPoints,
+                                             bool& displayYaehmopInput,
                                              bool& displayDOSData,
                                              bool& useSmoothing,
                                              double& stepE,
@@ -52,6 +53,7 @@ namespace Avogadro {
     m_ui->spin_numValElectrons->setValue(numValElectrons);
     numKPoints = 0;
     m_ui->edit_kpoints->setText(kPoints);
+    m_ui->cb_displayYaehmopInput->setChecked(displayYaehmopInput);
     m_ui->cb_displayData->setChecked(displayDOSData);
     m_ui->cb_useSmoothing->setChecked(useSmoothing);
     m_ui->spin_energyStep->setValue(stepE);
@@ -165,6 +167,7 @@ namespace Avogadro {
     numValElectrons = numValElectronsVal;
     numKPoints = numKPointsVal;
     kPoints = lines.join("\n");
+    displayYaehmopInput = m_ui->cb_displayYaehmopInput->isChecked();
     displayDOSData = m_ui->cb_displayData->isChecked();
     useSmoothing = m_ui->cb_useSmoothing->isChecked();
     if (useSmoothing) {

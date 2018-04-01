@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>599</width>
-    <height>368</height>
+    <height>393</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -224,11 +224,19 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
+   <item row="3" column="2">
+    <widget class="QCheckBox" name="cb_displayYaehmopInput">
+     <property name="text">
+      <string>Display Yaehmop Input?</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>spin_numKPoints</tabstop>
   <tabstop>edit_specialKPoints</tabstop>
+  <tabstop>cb_displayYaehmopInput</tabstop>
   <tabstop>cb_displayBandData</tabstop>
   <tabstop>cb_limitY</tabstop>
   <tabstop>spin_minY</tabstop>

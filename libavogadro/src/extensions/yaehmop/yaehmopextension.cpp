@@ -69,6 +69,7 @@ namespace Avogadro
       m_eStep(0.1),
       m_broadening(0.1),
       m_pdosDisplayTotalDOS(false),
+      m_displayYaehmopInput(false),
       m_displayData(false),
       m_limitY(false),
       m_minY(0.0),
@@ -204,6 +205,7 @@ namespace Avogadro
     settings.beginGroup("yaehmopextension");
 
     settings.beginGroup("generic");
+    settings.setValue("displayYaehmopInput", m_displayYaehmopInput);
     settings.setValue("displayData", m_displayData);
     settings.setValue("pdosDisplayTotalDOS", m_pdosDisplayTotalDOS);
     settings.setValue("limitY", m_limitY);
@@ -236,6 +238,8 @@ namespace Avogadro
     settings.beginGroup("yaehmopextension");
 
     settings.beginGroup("generic");
+    m_displayYaehmopInput =
+      settings.value("displayYaehmopInput", m_displayYaehmopInput).toBool();
     m_displayData = settings.value("displayData", m_displayData).toBool();
     m_pdosDisplayTotalDOS = settings.value("pdosDisplayTotalDOS",
                                            m_pdosDisplayTotalDOS).toBool();
@@ -535,6 +539,23 @@ namespace Avogadro
       dialog->show();
     }
 
+    // Show the yaehmop input if needed
+    if (m_displayYaehmopInput) {
+      QDialog* dialog = new QDialog;
+      QVBoxLayout* layout = new QVBoxLayout;
+      dialog->setLayout(layout);
+      dialog->setWindowTitle(tr("Yaehmop Input"));
+      QTextEdit* edit = new QTextEdit;
+      layout->addWidget(edit);
+      dialog->resize(500, 500);
+
+      edit->setText(input);
+
+      // Make sure this gets deleted upon closing
+      dialog->setAttribute(Qt::WA_DeleteOnClose);
+      dialog->show();
+    }
+
     // Let's make sure this gets deleted when we close it
     pw->setAttribute(Qt::WA_DeleteOnClose);
     // Show it!
@@ -801,6 +822,23 @@ namespace Avogadro
 
       // Show the user the output
       edit->setText(DOSDataStr);
+
+      // Make sure this gets deleted upon closing
+      dialog->setAttribute(Qt::WA_DeleteOnClose);
+      dialog->show();
+    }
+
+    // Show the yaehmop input if needed
+    if (m_displayYaehmopInput) {
+      QDialog* dialog = new QDialog;
+      QVBoxLayout* layout = new QVBoxLayout;
+      dialog->setLayout(layout);
+      dialog->setWindowTitle(tr("Yaehmop Input"));
+      QTextEdit* edit = new QTextEdit;
+      layout->addWidget(edit);
+      dialog->resize(500, 500);
+
+      edit->setText(input);
 
       // Make sure this gets deleted upon closing
       dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -1331,6 +1369,23 @@ namespace Avogadro
       dialog->show();
     }
 
+    // Show the yaehmop input if needed
+    if (m_displayYaehmopInput) {
+      QDialog* dialog = new QDialog;
+      QVBoxLayout* layout = new QVBoxLayout;
+      dialog->setLayout(layout);
+      dialog->setWindowTitle(tr("Yaehmop Input"));
+      QTextEdit* edit = new QTextEdit;
+      layout->addWidget(edit);
+      dialog->resize(500, 500);
+
+      edit->setText(input);
+
+      // Make sure this gets deleted upon closing
+      dialog->setAttribute(Qt::WA_DeleteOnClose);
+      dialog->show();
+    }
+
     // Now let's create the text legend
     QString legendStr;
     if (m_pdosDisplayTotalDOS)
@@ -1635,6 +1690,23 @@ namespace Avogadro
       dialog->show();
     }
 
+    // Show the yaehmop input if needed
+    if (m_displayYaehmopInput) {
+      QDialog* dialog = new QDialog;
+      QVBoxLayout* layout = new QVBoxLayout;
+      dialog->setLayout(layout);
+      dialog->setWindowTitle(tr("Yaehmop Input"));
+      QTextEdit* edit = new QTextEdit;
+      layout->addWidget(edit);
+      dialog->resize(500, 500);
+
+      edit->setText(input);
+
+      // Make sure this gets deleted upon closing
+      dialog->setAttribute(Qt::WA_DeleteOnClose);
+      dialog->show();
+    }
+
     // Now let's create the text legend
     QString legendStr;
 
@@ -1680,8 +1752,9 @@ namespace Avogadro
     QString specialKPointString;
     YaehmopBandDialog d;
     if (!d.getUserOptions(m_molecule, m_bandNumKPoints, specialKPointString,
-                          m_displayData, m_limitY, m_minY, m_maxY, m_plotFermi,
-                          m_fermi, m_zeroFermi, m_numDimensions))
+                          m_displayYaehmopInput, m_displayData, m_limitY,
+                          m_minY, m_maxY, m_plotFermi, m_fermi, m_zeroFermi,
+                          m_numDimensions))
       return "";
 
     // Proceed with the function
@@ -1736,8 +1809,8 @@ namespace Avogadro
     QString tempDOSKPoints = m_dosKPoints;
     YaehmopTotalDOSDialog d;
     if (!d.getUserOptions(this, numValElectrons, numKPoints,
-                          tempDOSKPoints, m_displayData, m_useSmoothing,
-                          m_eStep, m_broadening, m_limitY,
+                          tempDOSKPoints, m_displayYaehmopInput, m_displayData,
+                          m_useSmoothing, m_eStep, m_broadening, m_limitY,
                           m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
       return "";
     }
@@ -1798,7 +1871,8 @@ namespace Avogadro
     YaehmopProjectedDOSDialog d;
     if (!d.getUserOptions(this, numValElectrons, numKPoints,
                           m_integratePDOS, tempDOSKPoints, m_projDOSTitles,
-                          projections, m_pdosDisplayTotalDOS, m_displayData,
+                          projections, m_pdosDisplayTotalDOS,
+                          m_displayYaehmopInput, m_displayData,
                           m_useSmoothing, m_eStep, m_broadening, m_limitY,
                           m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
       return "";
@@ -1868,9 +1942,10 @@ namespace Avogadro
     QString tempDOSKPoints = m_dosKPoints;
     YaehmopCOOPDialog d;
     if (!d.getUserOptions(this, numValElectrons, numKPoints,
-                          tempDOSKPoints, coopsString, m_displayData,
-                          m_useSmoothing, m_eStep, m_broadening, m_limitY,
-                          m_minY, m_maxY, m_zeroFermi, m_numDimensions)) {
+                          tempDOSKPoints, coopsString, m_displayYaehmopInput,
+                          m_displayData, m_useSmoothing, m_eStep,
+                          m_broadening, m_limitY, m_minY, m_maxY, m_zeroFermi,
+                          m_numDimensions)) {
       return "";
     }
 
